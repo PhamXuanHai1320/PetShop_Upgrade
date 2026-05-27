@@ -1,0 +1,32 @@
+# Build results
+bin/
+obj/
+publish/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio
+.vs/
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+
+# ASP.NET environment config (nếu không muốn đẩy lên remote)
+appsettings.Development.json
+appsettings.Local.json
+
+**/lib/
+appsettings.Development.json
