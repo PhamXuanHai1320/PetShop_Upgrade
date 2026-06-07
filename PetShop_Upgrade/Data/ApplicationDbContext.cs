@@ -37,6 +37,7 @@ namespace PetShop_Upgrade.Data
         public DbSet<PetShop_Upgrade.Models.ToysDetail> ToysDetails { get; set; }
         public DbSet<PetShop_Upgrade.Models.TransactionLog> TransactionLogs { get; set; }
         public DbSet<PetShop_Upgrade.Models.Vaccine> Vaccine { get; set; }
+        public DbSet<PetShop_Upgrade.Models.RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -56,6 +57,14 @@ namespace PetShop_Upgrade.Data
                 .WithMany(m => m.Addresses)
                 .HasForeignKey(a => a.MemberId)
                 .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<RefreshToken>()
+                .HasOne(rt => rt.Member)
+                .WithMany(m => m.RefreshTokens)
+                .HasForeignKey(rt => rt.MemberId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<RefreshToken>()
+                .HasIndex(rt => rt.HashToken)
+                .IsUnique();
 
             // Member -> Cart (1-1)
             modelBuilder.Entity<Cart>()

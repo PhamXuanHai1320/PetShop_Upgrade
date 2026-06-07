@@ -15,5 +15,6 @@ namespace PetShop_Upgrade.Models
         public ICollection<ProductHistory> ProductHistories { get; set; } = [];
         public ICollection<DiscountUsage> DiscountUsages { get; set; } = [];
         public ICollection<Discount> Discounts { get; set; } = [];
+        public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
     }
 }
