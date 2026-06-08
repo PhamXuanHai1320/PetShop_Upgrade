@@ -11,8 +11,12 @@ using PetShop_Upgrade.Services;
 using PetShop_Upgrade.Utils;
 using System.Text;
 using PetShop_Upgrade.Utils.Interfaces;
+using MongoDB.Driver;
+using PetShop_Upgrade.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSingleton<MongoDbContext>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -20,11 +24,13 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMemberService, MemberService>();
+builder.Services.AddScoped<ITransactionLogService, TransactionLogService>();
 
 // Add Repository to the container.
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<ITransactionLogRepository, TransactionLogRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<ITokenHelper, TokenHelper>();
@@ -118,6 +124,8 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
+
+app.UseMiddleware<TransactionLoggingMiddleware>();
 
 app.MapControllers();
 

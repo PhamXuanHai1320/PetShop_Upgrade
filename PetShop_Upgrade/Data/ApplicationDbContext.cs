@@ -35,7 +35,7 @@ namespace PetShop_Upgrade.Data
         public DbSet<PetShop_Upgrade.Models.ProductImage> ProductImages { get; set; }
         public DbSet<PetShop_Upgrade.Models.Rating> Ratings { get; set; }
         public DbSet<PetShop_Upgrade.Models.ToysDetail> ToysDetails { get; set; }
-        public DbSet<PetShop_Upgrade.Models.TransactionLog> TransactionLogs { get; set; }
+        //public DbSet<PetShop_Upgrade.Models.TransactionLog> TransactionLogs { get; set; }
         public DbSet<PetShop_Upgrade.Models.Vaccine> Vaccine { get; set; }
         public DbSet<PetShop_Upgrade.Models.RefreshToken> RefreshTokens { get; set; }
 
