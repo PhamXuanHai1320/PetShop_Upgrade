@@ -12,6 +12,7 @@ namespace PetShop_Upgrade.Repositories
             MemberRepository = new MemberRepository(_context);
             RefreshTokenRepository = new RefreshTokenRepository(_context);
             CartRepository = new CartRepository(_context);
+            ColorRepository = new ColorRepository(_context);
         }
 
         public IMemberRepository MemberRepository { get; private set; }
@@ -19,6 +20,7 @@ namespace PetShop_Upgrade.Repositories
         public IRefreshTokenRepository RefreshTokenRepository { get; private set; }
 
         public ICartRepository CartRepository { get; private set; }
+        public IColorRepository ColorRepository { get; private set; }
 
         public void Dispose()
         {

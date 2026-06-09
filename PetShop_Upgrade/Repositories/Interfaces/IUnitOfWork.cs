@@ -7,5 +7,6 @@
         IMemberRepository MemberRepository { get; }
         IRefreshTokenRepository RefreshTokenRepository { get; }
         ICartRepository CartRepository { get; }
+        IColorRepository ColorRepository { get; }
     }
 }

@@ -23,6 +23,11 @@ namespace PetShop_Upgrade.Repositories
         {
             _dbSet.Remove(entity);
         }
+        public async Task<IEnumerable<T>> GetAll()
+        {
+            return await _dbSet
+                .ToListAsync();
+        }
 
         public async Task<IEnumerable<T>> GetAll(int page, int pageSize)
         {
