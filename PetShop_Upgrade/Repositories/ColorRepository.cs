@@ -18,5 +18,12 @@ namespace PetShop_Upgrade.Repositories
                 .ToListAsync();
             return colors;
         }
+        public async Task<IEnumerable<Color>> GetColorsByName(string colorName)
+        {
+            var colors = await _context.Colors
+                .Where(c => c.ColorName.Contains(colorName))
+                .ToListAsync();
+            return colors;
+        }
     }
 }

@@ -15,136 +15,113 @@ namespace PetShop_Upgrade.Services
 
         public async Task<ColorDTO> CreateColorAsync(ColorDTO colorDTO)
         {
-            try
+            if (colorDTO == null || string.IsNullOrEmpty(colorDTO.ColorName))
             {
-                if (colorDTO == null || string.IsNullOrEmpty(colorDTO.ColorName))
-                {
-                    throw new ArgumentException("ColorDTO có giá trị null hoặc có ColorName rỗng.");
-                }
-                var color = new Color
-                {
-                    ColorName = colorDTO.ColorName
-                };
-                if (color == null)
-                {
-                    throw new ArgumentNullException(nameof(colorDTO), "Color cannot be null");
-                }
-                await _unitOfWork.ColorRepository.Add(color);
-                await _unitOfWork.SaveChangesAsync();
+                throw new ArgumentException("ColorDTO không hợp lệ hoặc ColorName rỗng.");
+            }
 
-                colorDTO.Id = color.Id;
-                return colorDTO;
-            }
-            catch (Exception ex)
+            var color = new Color
             {
-                throw new Exception("Lỗi khi tạo color: " + ex.Message, ex);
-            }
+                ColorName = colorDTO.ColorName.Trim()
+            };
+
+            await _unitOfWork.ColorRepository.Add(color);
+            await _unitOfWork.SaveChangesAsync();
+
+            colorDTO.Id = color.Id;
+            return colorDTO;
         }
 
         public async Task DeleteColorAsync(int id)
         {
-            try
+            var color = await _unitOfWork.ColorRepository.GetById(id);
+            if (color == null)
             {
-                var color = await _unitOfWork.ColorRepository.GetById(id);
-                if (color == null)
-                {
-                    throw new KeyNotFoundException($"Không tìm thấy color với id: {id}");
-                }
-                await _unitOfWork.ColorRepository.Delete(color);
-                await _unitOfWork.SaveChangesAsync();
+                throw new KeyNotFoundException($"Không tìm thấy color với id: {id}");
             }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi khi xóa color: " + ex.Message, ex);
-            }
+
+            await _unitOfWork.ColorRepository.Delete(color);
+            await _unitOfWork.SaveChangesAsync();
         }
         public async Task<IEnumerable<ColorDTO>> GetAllColorsAsync()
         {
-            try
+            var colors = await _unitOfWork.ColorRepository.GetAll();
+
+            if (colors == null || !colors.Any())
             {
-                var colors = await _unitOfWork.ColorRepository.GetAll();
-                if (colors == null)
-                {
-                    throw new Exception("Không tìm thấy colors nào.");
-                }
-                var colorDTOs = colors.Select(c => new ColorDTO
-                {
-                    Id = c.Id,
-                    ColorName = c.ColorName
-                }).ToList();
-                return colorDTOs;
-            }
-            catch (Exception ex)
+                return Enumerable.Empty<ColorDTO>();
+            }    
+            var colorDTOs = colors.Select(c => new ColorDTO
             {
-                throw new Exception("Lỗi khi lấy danh sách colors: " + ex.Message, ex);
-            }
+                Id = c.Id,
+                ColorName = c.ColorName
+            }).ToList();
+            return colorDTOs;
         }
         public async Task<ColorDTO> GetColorByIdAsync(int colorId)
         {
-            try
+            var color = await _unitOfWork.ColorRepository.GetById(colorId);
+            if (color == null)
             {
-                var color = await _unitOfWork.ColorRepository.GetById(colorId);
-                if (color == null)
-                {
-                    throw new KeyNotFoundException($"Không tìm thấy color với id: {colorId}");
-                }
-                var colorDTO = new ColorDTO
-                {
-                    Id = color.Id,
-                    ColorName = color.ColorName
-                };
-                return colorDTO;
+                throw new KeyNotFoundException($"Không tìm thấy color với id: {colorId}");
             }
-            catch (Exception ex)
+
+            var colorDTO = new ColorDTO
             {
-                throw new Exception("Lỗi khi lấy color theo id: " + ex.Message, ex);
-            }
+                Id = color.Id,
+                ColorName = color.ColorName
+            };
+            return colorDTO;
+        }
+
+        public async Task<IEnumerable<ColorDTO>> GetColorsByName(string colorName)
+        {
+            var colors = await _unitOfWork.ColorRepository.GetColorsByName(colorName);
+
+            if (colors == null || !colors.Any())
+            {
+                return Enumerable.Empty<ColorDTO>();
+            }    
+
+            var colorDTOs = colors.Select(c => new ColorDTO
+            {
+                Id = c.Id,
+                ColorName = c.ColorName
+            }).ToList();
+            return colorDTOs;
         }
         public async Task<IEnumerable<ProductColorDTO>> GetColorsByProductIdAsync(int productId)
         {
-            try
+            var colors = await _unitOfWork.ColorRepository.GetColorsByProductId(productId);
+            if (colors == null || !colors.Any())
             {
-                var colors = await _unitOfWork.ColorRepository.GetColorsByProductId(productId);
-                if (colors == null || !colors.Any())
-                {
-                    throw new KeyNotFoundException($"Không tìm thấy colors nào cho productId: {productId}");
-                }
-                var colorNames = colors.Select(c => c.ColorName).ToList();
-                var productColorsDTO = colors.Select(c => new ProductColorDTO
-                {
-                    Id = c.Id,
-                    ColorName = c.ColorName,
-                    Quantity = c.ProductColors.FirstOrDefault()?.Quantity,
-                    ProductId = c.ProductColors.FirstOrDefault()?.ProductId
-                }).ToList();
-                return productColorsDTO;
+                return Enumerable.Empty<ProductColorDTO>();
+            }    
 
-
-            }
-            catch (Exception ex)
+            var productColorsDTO = colors.Select(c => new ProductColorDTO
             {
-                throw new Exception("Lỗi khi lấy colors theo productId: " + ex.Message, ex);
-            }
+                Id = c.Id,
+                ColorName = c.ColorName,
+                Quantity = c.ProductColors.FirstOrDefault()?.Quantity,
+                ProductId = c.ProductColors.FirstOrDefault()?.ProductId
+            }).ToList();
+            return productColorsDTO;
         }
         public async Task<ColorDTO> UpdateColorAsync(int id, ColorDTO colorDTO)
         {
-            try
+            var color = await _unitOfWork.ColorRepository.GetById(id);
+            if (color == null)
             {
-                var color = await _unitOfWork.ColorRepository.GetById(id);
-                if (color == null)
-                {
-                    throw new KeyNotFoundException($"Không tìm thấy color với id: {id}");
-                }
-                color.ColorName = colorDTO.ColorName;
-                _unitOfWork.ColorRepository.Update(color);
-                _unitOfWork.SaveChangesAsync().Wait();
-                colorDTO.Id = color.Id;
-                return colorDTO;
+                throw new KeyNotFoundException($"Không tìm thấy color với id: {id}");
             }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi khi cập nhật color: " + ex.Message, ex);
-            }
+
+            color.ColorName = colorDTO.ColorName;
+
+            await _unitOfWork.ColorRepository.Update(color);
+            await _unitOfWork.SaveChangesAsync();
+
+            colorDTO.Id = color.Id;
+            return colorDTO;
         }
     }
 }
