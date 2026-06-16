@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.SecurityTokenService;
+using PetShop_Upgrade.Exceptions;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;
 using PetShop_Upgrade.Services.Interfaces;
@@ -20,13 +20,13 @@ namespace PetShop_Upgrade.Services
             var member = await _userManager.FindByIdAsync(memberId);
             if (member == null)
             {
-                throw new Exception("Không tìm thấy người dùng.");
+                throw new NotFoundException("Không tìm thấy người dùng.");
             }
             // Kiểm tra người dùng đã bị block từ trước chưa
             var isAlreadyLocked = await _userManager.IsLockedOutAsync(member);
             if (isAlreadyLocked || (member.LockoutEnd.HasValue && member.LockoutEnd > DateTimeOffset.UtcNow))
             {
-                throw new InvalidOperationException("Tài khoản này đã bị khóa từ trước.");
+                throw new ConflictException("Tài khoản này đã bị khóa từ trước.");
             }
 
             await _userManager.SetLockoutEnabledAsync(member, true);
@@ -35,7 +35,7 @@ namespace PetShop_Upgrade.Services
 
             if (!lockoutResult.Succeeded)
             {
-                throw new Exception("Không thể khóa tài khoản này.");
+                throw new BadRequestException("Không thể khóa tài khoản này.");
             }
 
             // Đá văng thiết bị

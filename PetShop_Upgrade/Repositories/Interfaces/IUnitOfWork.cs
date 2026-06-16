@@ -1,12 +1,15 @@
-﻿namespace PetShop_Upgrade.Repositories.Interfaces
+﻿using Microsoft.EntityFrameworkCore.Storage;
+
+namespace PetShop_Upgrade.Repositories.Interfaces
 {
-    public interface IUnitOfWork : IDisposable
+    public interface IUnitOfWork
     {
-        void Dispose();
         Task SaveChangesAsync();
+        Task<IDbContextTransaction> BeginTransactionAsync();
         IMemberRepository MemberRepository { get; }
         IRefreshTokenRepository RefreshTokenRepository { get; }
         ICartRepository CartRepository { get; }
         IColorRepository ColorRepository { get; }
+        ICategoryRepository CategoryRepository  { get; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using PetShop_Upgrade.DTOS;
+using PetShop_Upgrade.Exceptions;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;
 using PetShop_Upgrade.Services.Interfaces;
@@ -17,7 +18,7 @@ namespace PetShop_Upgrade.Services
         {
             if (colorDTO == null || string.IsNullOrEmpty(colorDTO.ColorName))
             {
-                throw new ArgumentException("ColorDTO không hợp lệ hoặc ColorName rỗng.");
+                throw new BadRequestException("ColorDTO không hợp lệ hoặc ColorName rỗng.");
             }
 
             var color = new Color
@@ -37,7 +38,7 @@ namespace PetShop_Upgrade.Services
             var color = await _unitOfWork.ColorRepository.GetById(id);
             if (color == null)
             {
-                throw new KeyNotFoundException($"Không tìm thấy color với id: {id}");
+                throw new NotFoundException($"Không tìm thấy color với id: {id}");
             }
 
             await _unitOfWork.ColorRepository.Delete(color);
@@ -63,7 +64,7 @@ namespace PetShop_Upgrade.Services
             var color = await _unitOfWork.ColorRepository.GetById(colorId);
             if (color == null)
             {
-                throw new KeyNotFoundException($"Không tìm thấy color với id: {colorId}");
+                throw new NotFoundException($"Không tìm thấy color với id: {colorId}");
             }
 
             var colorDTO = new ColorDTO
@@ -96,14 +97,18 @@ namespace PetShop_Upgrade.Services
             if (colors == null || !colors.Any())
             {
                 return Enumerable.Empty<ProductColorDTO>();
-            }    
+            }
 
-            var productColorsDTO = colors.Select(c => new ProductColorDTO
+            var productColorsDTO = colors.Select(c =>
             {
-                Id = c.Id,
-                ColorName = c.ColorName,
-                Quantity = c.ProductColors.FirstOrDefault()?.Quantity,
-                ProductId = c.ProductColors.FirstOrDefault()?.ProductId
+                var pc = c.ProductColors.FirstOrDefault();
+                return new ProductColorDTO
+                {
+                    Id = c.Id,
+                    ColorName = c.ColorName,
+                    Quantity = pc?.Quantity,
+                    ProductId = pc?.ProductId
+                };
             }).ToList();
             return productColorsDTO;
         }
@@ -112,10 +117,10 @@ namespace PetShop_Upgrade.Services
             var color = await _unitOfWork.ColorRepository.GetById(id);
             if (color == null)
             {
-                throw new KeyNotFoundException($"Không tìm thấy color với id: {id}");
+                throw new NotFoundException($"Không tìm thấy color với id: {id}");
             }
 
-            color.ColorName = colorDTO.ColorName;
+            color.ColorName = colorDTO.ColorName?.Trim();
 
             await _unitOfWork.ColorRepository.Update(color);
             await _unitOfWork.SaveChangesAsync();

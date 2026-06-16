@@ -15,33 +15,18 @@ namespace PetShop_Upgrade.Controllers
         [Authorize]
         public async Task<IActionResult> LogoutAllDevices()
         {
-            try
+            var memberId = User.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
+            if (memberId == null)
             {
-                var memberId = User.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
-                if (memberId == null)
-                {
-                    return BadRequest(new
-                    {
-                        Success = false,
-                        Message = "Không tìm thấy thông tin người dùng."
-                    });
-                }
-                // Gọi service để thu hồi tất cả refresh token của người dùng
-                await _authService.RevokeAllAsync(memberId);
-                return Ok(new
-                {
-                    Success = true,
-                    Message = "Đăng xuất khỏi tất cả thiết bị thành công."
-                });
+                throw new UnauthorizedAccessException("Không tìm thấy thông tin người dùng.");
             }
-            catch (Exception ex)
+            // Gọi service để thu hồi tất cả refresh token của người dùng
+            await _authService.RevokeAllAsync(memberId);
+            return Ok(new
             {
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = ex.Message
-                });
-            }
+                Success = true,
+                Message = "Đăng xuất khỏi tất cả thiết bị thành công."
+            });
         }
     }
 }

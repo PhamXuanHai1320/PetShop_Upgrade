@@ -1,7 +1,7 @@
 ﻿using Azure.Core;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.SecurityTokenService;
 using PetShop_Upgrade.DTOS;
+using PetShop_Upgrade.Exceptions;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;
 using PetShop_Upgrade.Services.Interfaces;
@@ -36,23 +36,23 @@ namespace PetShop_Upgrade.Services
             var member = await _userManager.FindByNameAsync(loginDTO.UserName);
             if (member == null)
             {
-                throw new Exception("User không tồn tại");
+                throw new NotFoundException("User không tồn tại");
             }
             // Kiểm tra xem tài khoản có bị khóa hay không trước khi kiểm tra mật khẩu
             var isLockedOut = await _userManager.IsLockedOutAsync(member);
             if (isLockedOut)
             {
                 //var lockoutEnd = await _userManager.GetLockoutEndDateAsync(member); // Lấy thời gian mở khóa
-                throw new UnauthorizedAccessException("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.");
+                throw new UnauthorizedException("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.");
             }
             var result = await _signInManager.CheckPasswordSignInAsync(member, loginDTO.Password, lockoutOnFailure: true);
             if(result.IsLockedOut)
             {
-                throw new Exception("Tài khoản của bạn đã bị khóa tạm thời. Vui lòng thử lại sau 15 phút.");
+                throw new UnauthorizedException("Tài khoản của bạn đã bị khóa tạm thời. Vui lòng thử lại sau 15 phút.");
             }
             if (!result.Succeeded)
             {
-                throw new Exception("Sai tên đăng nhập hoặc mật khẩu");
+                throw new UnauthorizedException("Sai tên đăng nhập hoặc mật khẩu");
             }
             var memberDTO = await MapToMemberDto(member);
             var token = _jwtService.GenerateTokenAsync(memberDTO);
@@ -80,13 +80,13 @@ namespace PetShop_Upgrade.Services
             var principal = _jwtService.GetPrincipalFromExpiredToken(request.AccessToken);
             if (principal == null)
             {
-                throw new Exception("Token không hợp lệ");
+                throw new UnauthorizedException("Token không hợp lệ");
             }
             // Tìm Member
             var memberId = principal.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
             if (memberId == null)
             {
-                throw new Exception("Không tìm thấy MemberId trong token.");
+                throw new UnauthorizedException("Không tìm thấy MemberId trong token.");
             }
             // Kiểm tra refresh token có hợp lệ hay không
             var hashedToken = _tokenHelper.HashRefreshToken(request.RefreshToken);
@@ -96,7 +96,7 @@ namespace PetShop_Upgrade.Services
             var freshMember = await _unitOfWork.MemberRepository.GetById(int.Parse(memberId));
             if (freshMember == null)
             {
-                throw new UnauthorizedAccessException("Tài khoản không tồn tại hoặc đã bị khóa.");
+                throw new UnauthorizedException("Tài khoản không tồn tại hoặc đã bị khóa.");
             }
             // Tạo token mới
             var memberDTO = new MemberDTO
@@ -109,7 +109,11 @@ namespace PetShop_Upgrade.Services
             
             if (storedToken is null || !storedToken.IsActive)
             {
-                throw new UnauthorizedAccessException("Refresh token không hợp lệ hoặc đã hết hạn.");
+                throw new UnauthorizedException("Refresh token không hợp lệ hoặc đã hết hạn.");
+            }
+            if(freshMember == null)
+            {
+                throw new NotFoundException("Tài khoản không tồn tại hoặc đã bị xóa.");
             }
             storedToken.IsRevoked = true;
             // Tạo bản ghi lưu Refresh Token mới xuống Database
@@ -134,66 +138,78 @@ namespace PetShop_Upgrade.Services
             var existingMember = await _userManager.FindByNameAsync(registerDTO.Username);
             if (existingMember != null)
             {
-                throw new BadRequestException("Tên đăng nhập đã tồn tại!");
+                throw new ConflictException("Tên đăng nhập đã tồn tại!");
             }
             var existingEmail = await _userManager.FindByEmailAsync(registerDTO.Email);
             if (existingEmail != null)
             {
-                throw new BadRequestException("Email đã được sử dụng");
+                throw new ConflictException("Email đã được sử dụng");
             }
-            // Tạo đối tượng Member mới
-            var newMember = new Member
+            // gọi Transaction để rollback nếu có lỗi
+            var transaction = await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                UserName = registerDTO.Username,
-                Email = registerDTO.Email,
-                FirstName = registerDTO.FirstName,
-                LastName = registerDTO.LastName,
-                PhoneNumber = registerDTO.PhoneNumber
-            };
-            var result = await _userManager.CreateAsync(newMember, registerDTO.Password);
-
-            if (!result.Succeeded)
-            {
-                var errorMessages = string.Join(", ", result.Errors.Select(e => e.Description));
-                throw new Exception(errorMessages);
-            }
-            await _userManager.AddToRoleAsync(newMember, role);
-
-            if(role == "Customer")
-            {
-                var cart = new Cart
+                // Tạo đối tượng Member mới
+                var newMember = new Member
                 {
-                    MemberId = newMember.Id,
-                    CreatedAt = DateTime.UtcNow
+                    UserName = registerDTO.Username,
+                    Email = registerDTO.Email,
+                    FirstName = registerDTO.FirstName,
+                    LastName = registerDTO.LastName,
+                    PhoneNumber = registerDTO.PhoneNumber
                 };
-                await _unitOfWork.CartRepository.Add(cart);
-            }
-            // Tạo token ngay sau khi đăng ký thành công
-            var memberDTO = await MapToMemberDto(newMember);
-            var token = _jwtService.GenerateTokenAsync(memberDTO);
-            var refreshToken = _tokenHelper.GenerateRefreshTokenString();
-            var refreshTokenEntity = new RefreshToken
-            {
-                HashToken = _tokenHelper.HashRefreshToken(refreshToken),
-                MemberId = newMember.Id,
-                ExpiresAt = DateTime.UtcNow.AddDays(_expiresAt),
-                IsRevoked = false
-            };
-            await _unitOfWork.RefreshTokenRepository.Add(refreshTokenEntity);
-            await _unitOfWork.SaveChangesAsync();
+                var result = await _userManager.CreateAsync(newMember, registerDTO.Password);
 
-            return new AuthResponseDTO
+                if (!result.Succeeded)
+                {
+                    var errorMessages = string.Join(", ", result.Errors.Select(e => e.Description));
+                    throw new BadRequestException(errorMessages);
+                }
+                await _userManager.AddToRoleAsync(newMember, role);
+
+                if (role == "Customer")
+                {
+                    var cart = new Cart
+                    {
+                        MemberId = newMember.Id,
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    await _unitOfWork.CartRepository.Add(cart);
+                }
+                // Tạo token ngay sau khi đăng ký thành công
+                var memberDTO = await MapToMemberDto(newMember);
+                var token = _jwtService.GenerateTokenAsync(memberDTO);
+                var refreshToken = _tokenHelper.GenerateRefreshTokenString();
+                var refreshTokenEntity = new RefreshToken
+                {
+                    HashToken = _tokenHelper.HashRefreshToken(refreshToken),
+                    MemberId = newMember.Id,
+                    ExpiresAt = DateTime.UtcNow.AddDays(_expiresAt),
+                    IsRevoked = false
+                };
+                await _unitOfWork.RefreshTokenRepository.Add(refreshTokenEntity);
+                await _unitOfWork.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return new AuthResponseDTO
+                {
+                    RefreshToken = refreshToken,
+                    AccessToken = token
+                };
+            }
+            catch (Exception ex)
             {
-                RefreshToken = refreshToken,
-                AccessToken = token
-            };
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task RevokeAllAsync(string memberId)
         {
             if (!int.TryParse(memberId, out int newmemberId))
             {
-                throw new ArgumentException("Id người dùng không hợp lệ.");
+                throw new BadRequestException("Id người dùng không hợp lệ.");
             }
 
             // Gọi hàm Bulk Update ở Repository
@@ -213,7 +229,7 @@ namespace PetShop_Upgrade.Services
             }
             if (storedToken.MemberId != memberId)
             {
-                throw new UnauthorizedAccessException("Bạn không có quyền hủy token này.");
+                throw new UnauthorizedException("Bạn không có quyền hủy token này.");
             }
 
             // 3. Gọi hàm đánh dấu thu hồi bên Repository (thực chất là gán IsRevoked = true)

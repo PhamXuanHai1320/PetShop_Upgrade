@@ -1,4 +1,5 @@
-﻿using PetShop_Upgrade.Data;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using PetShop_Upgrade.Data;
 using PetShop_Upgrade.Repositories.Interfaces;
 
 namespace PetShop_Upgrade.Repositories
@@ -13,6 +14,7 @@ namespace PetShop_Upgrade.Repositories
             RefreshTokenRepository = new RefreshTokenRepository(_context);
             CartRepository = new CartRepository(_context);
             ColorRepository = new ColorRepository(_context);
+            CategoryRepository = new CategoryRepository(_context);
         }
 
         public IMemberRepository MemberRepository { get; private set; }
@@ -21,14 +23,14 @@ namespace PetShop_Upgrade.Repositories
 
         public ICartRepository CartRepository { get; private set; }
         public IColorRepository ColorRepository { get; private set; }
-
-        public void Dispose()
-        {
-            _context.Dispose();
-        }
+        public ICategoryRepository CategoryRepository { get; private set; }
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
+        }
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            return await _context.Database.BeginTransactionAsync();
         }
     }
 }
