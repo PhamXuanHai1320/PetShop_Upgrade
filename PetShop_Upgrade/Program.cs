@@ -26,6 +26,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMemberService, MemberService>();
 builder.Services.AddScoped<ITransactionLogService, TransactionLogService>();
 builder.Services.AddScoped<IColorService, ColorService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 // Add Repository to the container.
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
@@ -33,6 +34,7 @@ builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<ITransactionLogRepository, TransactionLogRepository>();
 builder.Services.AddScoped<IColorRepository, ColorRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<ITokenHelper, TokenHelper>();
@@ -127,6 +129,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseMiddleware<TransactionLoggingMiddleware>();
 
 app.MapControllers();
