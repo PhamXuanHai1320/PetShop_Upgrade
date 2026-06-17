@@ -11,5 +11,6 @@ namespace PetShop_Upgrade.Repositories.Interfaces
         ICartRepository CartRepository { get; }
         IColorRepository ColorRepository { get; }
         ICategoryRepository CategoryRepository  { get; }
+        IProductRepository ProductRepository { get; }
     }
 }

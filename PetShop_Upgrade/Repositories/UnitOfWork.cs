@@ -15,6 +15,7 @@ namespace PetShop_Upgrade.Repositories
             CartRepository = new CartRepository(_context);
             ColorRepository = new ColorRepository(_context);
             CategoryRepository = new CategoryRepository(_context);
+            ProductRepository = new ProductRepository(_context);
         }
 
         public IMemberRepository MemberRepository { get; private set; }
@@ -24,6 +25,9 @@ namespace PetShop_Upgrade.Repositories
         public ICartRepository CartRepository { get; private set; }
         public IColorRepository ColorRepository { get; private set; }
         public ICategoryRepository CategoryRepository { get; private set; }
+
+        public IProductRepository ProductRepository { get; private set; }
+
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();

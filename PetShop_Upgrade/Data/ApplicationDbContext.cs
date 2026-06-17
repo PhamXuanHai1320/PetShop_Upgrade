@@ -13,7 +13,7 @@ namespace PetShop_Upgrade.Data
         public DbSet<PetShop_Upgrade.Models.Address> Addresses { get; set; }
         public DbSet<PetShop_Upgrade.Models.Cart> Carts { get; set; }
         public DbSet<PetShop_Upgrade.Models.CartItem> CartItems { get; set; }
-        public DbSet<PetShop_Upgrade.Models.Category> categories { get; set; }
+        public DbSet<PetShop_Upgrade.Models.Category> Categories { get; set; }
         public DbSet<PetShop_Upgrade.Models.Color> Colors { get; set; }
         public DbSet<PetShop_Upgrade.Models.Discount> Discounts { get; set; }
         public DbSet<PetShop_Upgrade.Models.DiscountCategory> DiscountCategories { get; set; }
