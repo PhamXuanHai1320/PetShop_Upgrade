@@ -35,18 +35,24 @@ namespace PetShop_Upgrade.Services
 
         public async Task DeleteColorAsync(int id)
         {
-            var color = await _unitOfWork.ColorRepository.GetById(id);
+            var color = await _unitOfWork.ColorRepository.GetColorByIdAsync(id);
             if (color == null)
             {
                 throw new NotFoundException($"Không tìm thấy color với id: {id}");
             }
+            
+            var hasProductColor = await _unitOfWork.ColorRepository.HasProductColorByColorIdAsync(id);
+            if(hasProductColor) {
+                throw new BadRequestException($"Không thể xóa color '{color.ColorName}' vì vẫn còn sản phẩm đang liên kết.");
+            }
 
-            await _unitOfWork.ColorRepository.Delete(color);
+            color.IsActive = 0; // Đánh dấu là không hoạt động thay vì xóa hoàn toàn
+            await _unitOfWork.ColorRepository.Update(color);
             await _unitOfWork.SaveChangesAsync();
         }
         public async Task<IEnumerable<ColorDTO>> GetAllColorsAsync()
         {
-            var colors = await _unitOfWork.ColorRepository.GetAll();
+            var colors = await _unitOfWork.ColorRepository.GetAllColorsAsync();
 
             if (colors == null || !colors.Any())
             {
@@ -55,13 +61,14 @@ namespace PetShop_Upgrade.Services
             var colorDTOs = colors.Select(c => new ColorDTO
             {
                 Id = c.Id,
-                ColorName = c.ColorName
+                ColorName = c.ColorName,
+                IsActive = c.IsActive
             }).ToList();
             return colorDTOs;
         }
         public async Task<ColorDTO> GetColorByIdAsync(int colorId)
         {
-            var color = await _unitOfWork.ColorRepository.GetById(colorId);
+            var color = await _unitOfWork.ColorRepository.GetColorByIdAsync(colorId);
             if (color == null)
             {
                 throw new NotFoundException($"Không tìm thấy color với id: {colorId}");
@@ -70,14 +77,15 @@ namespace PetShop_Upgrade.Services
             var colorDTO = new ColorDTO
             {
                 Id = color.Id,
-                ColorName = color.ColorName
+                ColorName = color.ColorName,
+                IsActive = color.IsActive
             };
             return colorDTO;
         }
 
         public async Task<IEnumerable<ColorDTO>> GetColorsByName(string colorName)
         {
-            var colors = await _unitOfWork.ColorRepository.GetColorsByName(colorName);
+            var colors = await _unitOfWork.ColorRepository.GetColorsByNameAsync(colorName);
 
             if (colors == null || !colors.Any())
             {
@@ -87,13 +95,14 @@ namespace PetShop_Upgrade.Services
             var colorDTOs = colors.Select(c => new ColorDTO
             {
                 Id = c.Id,
-                ColorName = c.ColorName
+                ColorName = c.ColorName,
+                IsActive = c.IsActive
             }).ToList();
             return colorDTOs;
         }
         public async Task<IEnumerable<ProductColorDTO>> GetColorsByProductIdAsync(int productId)
         {
-            var colors = await _unitOfWork.ColorRepository.GetColorsByProductId(productId);
+            var colors = await _unitOfWork.ColorRepository.GetColorsByProductIdAsync(productId);
             if (colors == null || !colors.Any())
             {
                 return Enumerable.Empty<ProductColorDTO>();

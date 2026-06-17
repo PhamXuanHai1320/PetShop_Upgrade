@@ -12,10 +12,10 @@
         public double MaxOrderValue { get; set; }
         public int MaxUsage { get; set; }
         public int MaxUsagePerUser { get; set; }
-        public int DiscountType { get; set; } // 0: percentage, 1: fixed amount
+        public int DiscountType { get; set; } = 1;// 0: percentage, 1: fixed amount
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public int IsActive { get; set; } // 0: InActive; 1: Active
+        public int IsActive { get; set; } = 1; // 0: InActive; 1: Active
         public DateTime CreateAt { get; set; } = DateTime.Now;
         public int CreatedBy { get; set; }
         public Member Member { get; set; }

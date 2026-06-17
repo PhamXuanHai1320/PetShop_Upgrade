@@ -9,7 +9,7 @@
         public double ImportPrice { get; set; }
         public double SellingPrice { get; set; }
         public int Type { get; set; }
-        public int IsActive { get; set; }
+        public int IsActive { get; set; } = 1; 
         public int CategoryId { get; set; }
         public Category Category { get; set; }
         public ICollection<CartItem> CartItems { get; set; } = [];

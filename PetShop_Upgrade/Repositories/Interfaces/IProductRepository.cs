@@ -4,6 +4,6 @@ namespace PetShop_Upgrade.Repositories.Interfaces
 {
     public interface IProductRepository : IRepository<Product>
     {
-        Task<int> GetCountProductsByCategoryIdAsync();
+        Task<bool> HasProductsByCategoryIdAsync(int categoryId);
     }
 }

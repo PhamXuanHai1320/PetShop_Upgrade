@@ -10,11 +10,10 @@ namespace PetShop_Upgrade.Repositories
         public ProductRepository(ApplicationDbContext context) : base(context)
         {
         }
-        public async Task<int> GetCountProductsByCategoryIdAsync()
+        public async Task<bool> HasProductsByCategoryIdAsync(int categoryId)
         {
             return await _context.Products
-                .Where(p => p.CategoryId == p.Category.Id) 
-                .CountAsync();
+                .AnyAsync(p => p.CategoryId == categoryId);
         }
     }
 }
