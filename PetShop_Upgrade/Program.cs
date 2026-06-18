@@ -11,22 +11,24 @@ using PetShop_Upgrade.Services;
 using PetShop_Upgrade.Utils;
 using System.Text;
 using PetShop_Upgrade.Utils.Interfaces;
-using MongoDB.Driver;
 using PetShop_Upgrade.Middlewares;
+using PetShop_Upgrade.AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<MongoDbContext>();
 
+builder.Services.AddControllers();
+builder.Services.AddAutoMapper(typeof(AppMapperProfile).Assembly);
+
 // Add services to the container.
-builder.Services.AddControllersWithViews();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMemberService, MemberService>();
 builder.Services.AddScoped<ITransactionLogService, TransactionLogService>();
 builder.Services.AddScoped<IColorService, ColorService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IDiscountService, DiscountService>();
 
 // Add Repository to the container.
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
@@ -36,6 +38,7 @@ builder.Services.AddScoped<ITransactionLogRepository, TransactionLogRepository>(
 builder.Services.AddScoped<IColorRepository, ColorRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IDiscountRepository, DiscountRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<ITokenHelper, TokenHelper>();
@@ -122,13 +125,6 @@ app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.MapStaticAssets();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseMiddleware<TransactionLoggingMiddleware>();

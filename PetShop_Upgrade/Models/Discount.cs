@@ -6,15 +6,15 @@
         public int Id { get; set; }
         public string Code { get; set; }
         public string DiscountName { get; set; }
-        public string Description { get; set; }
-        public double DiscountValue { get; set; }
-        public double MinOrderValue { get; set; }
-        public double MaxOrderValue { get; set; }
-        public int MaxUsage { get; set; }
-        public int MaxUsagePerUser { get; set; }
+        public string? Description { get; set; }
+        public double DiscountValue { get; set; } 
+        public double? MinOrderValue { get; set; } 
+        public double? MaxDiscountAmount { get; set; }
+        public int? MaxUsage { get; set; }
+        public int? MaxUsagePerUser { get; set; }
         public int DiscountType { get; set; } = 1;// 0: percentage, 1: fixed amount
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime StartDate { get; set; } = DateTime.Now;
+        public DateTime? EndDate { get; set; }
         public int IsActive { get; set; } = 1; // 0: InActive; 1: Active
         public DateTime CreateAt { get; set; } = DateTime.Now;
         public int CreatedBy { get; set; }

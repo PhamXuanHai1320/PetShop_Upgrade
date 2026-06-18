@@ -240,6 +240,9 @@ namespace PetShop_Upgrade.Data
             // =====================
             // DISCOUNT
             // =====================
+            modelBuilder.Entity<Discount>()
+                .HasIndex(d => d.Code)
+                .IsUnique();
             // DiscountProduct (junction: Discount <-> Product)
             modelBuilder.Entity<DiscountProduct>()
                 .HasOne(dp => dp.Discount)
