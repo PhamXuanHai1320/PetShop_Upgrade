@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PetShop_Upgrade.Data;
 
@@ -11,9 +12,11 @@ using PetShop_Upgrade.Data;
 namespace PetShop_Upgrade.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260620052615_InitialCreate_1.3")]
+    partial class InitialCreate_13
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -212,39 +215,6 @@ namespace PetShop_Upgrade.Migrations
                     b.ToTable("Addresses");
                 });
 
-            modelBuilder.Entity("PetShop_Upgrade.Models.Appointment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("AppointmentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("MemberId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ServiceType")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MemberId");
-
-                    b.ToTable("Appointments");
-                });
-
             modelBuilder.Entity("PetShop_Upgrade.Models.Cart", b =>
                 {
                     b.Property<int>("Id")
@@ -284,9 +254,6 @@ namespace PetShop_Upgrade.Migrations
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
-                    b.Property<int>("ProductColorId")
-                        .HasColumnType("int");
-
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
@@ -324,8 +291,9 @@ namespace PetShop_Upgrade.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ProductType")
-                        .HasColumnType("int");
+                    b.Property<string>("ProductType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -540,8 +508,9 @@ namespace PetShop_Upgrade.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -657,8 +626,9 @@ namespace PetShop_Upgrade.Migrations
                     b.Property<double>("TotalPrice")
                         .HasColumnType("float");
 
-                    b.Property<int>("status")
-                        .HasColumnType("int");
+                    b.Property<string>("status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -892,30 +862,9 @@ namespace PetShop_Upgrade.Migrations
                     b.Property<int>("Weight")
                         .HasColumnType("int");
 
-                    b.Property<int>("isActive")
-                        .HasColumnType("int");
-
                     b.HasKey("ProductId");
 
                     b.ToTable("PetVariant");
-                });
-
-            modelBuilder.Entity("PetShop_Upgrade.Models.PetViewingAppointment", b =>
-                {
-                    b.Property<int>("AppointmentId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProductColorId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.HasKey("AppointmentId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("PetViewingAppointments");
                 });
 
             modelBuilder.Entity("PetShop_Upgrade.Models.Product", b =>
@@ -1224,17 +1173,6 @@ namespace PetShop_Upgrade.Migrations
                     b.Navigation("Member");
                 });
 
-            modelBuilder.Entity("PetShop_Upgrade.Models.Appointment", b =>
-                {
-                    b.HasOne("PetShop_Upgrade.Models.Member", "Member")
-                        .WithMany("Appointments")
-                        .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Member");
-                });
-
             modelBuilder.Entity("PetShop_Upgrade.Models.Cart", b =>
                 {
                     b.HasOne("PetShop_Upgrade.Models.Member", "Member")
@@ -1465,25 +1403,6 @@ namespace PetShop_Upgrade.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("PetShop_Upgrade.Models.PetViewingAppointment", b =>
-                {
-                    b.HasOne("PetShop_Upgrade.Models.Appointment", "Appointment")
-                        .WithOne()
-                        .HasForeignKey("PetShop_Upgrade.Models.PetViewingAppointment", "AppointmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PetShop_Upgrade.Models.Product", "Product")
-                        .WithMany("PetViewingAppointments")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Appointment");
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("PetShop_Upgrade.Models.Product", b =>
                 {
                     b.HasOne("PetShop_Upgrade.Models.Category", "Category")
@@ -1625,8 +1544,6 @@ namespace PetShop_Upgrade.Migrations
                 {
                     b.Navigation("Addresses");
 
-                    b.Navigation("Appointments");
-
                     b.Navigation("Cart")
                         .IsRequired();
 
@@ -1673,8 +1590,6 @@ namespace PetShop_Upgrade.Migrations
                     b.Navigation("OrderDetails");
 
                     b.Navigation("PetVariant");
-
-                    b.Navigation("PetViewingAppointments");
 
                     b.Navigation("ProductColors");
 

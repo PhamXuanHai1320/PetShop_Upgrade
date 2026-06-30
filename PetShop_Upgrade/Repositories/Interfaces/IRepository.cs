@@ -1,4 +1,6 @@
-﻿namespace PetShop_Upgrade.Repositories.Interfaces
+﻿using System.Linq.Expressions;
+
+namespace PetShop_Upgrade.Repositories.Interfaces
 {
     public interface IRepository<T> where T : class
     {
@@ -8,5 +10,6 @@
         Task Add(T entity);
         Task Update(T entity);
         Task Delete(T entity);
+        Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
     }
 }

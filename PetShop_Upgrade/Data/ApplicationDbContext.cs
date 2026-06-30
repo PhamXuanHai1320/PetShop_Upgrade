@@ -10,34 +10,36 @@ namespace PetShop_Upgrade.Data
             : base(options)
         {
         }
-        public DbSet<PetShop_Upgrade.Models.Address> Addresses { get; set; }
-        public DbSet<PetShop_Upgrade.Models.Cart> Carts { get; set; }
-        public DbSet<PetShop_Upgrade.Models.CartItem> CartItems { get; set; }
-        public DbSet<PetShop_Upgrade.Models.Category> Categories { get; set; }
-        public DbSet<PetShop_Upgrade.Models.Color> Colors { get; set; }
-        public DbSet<PetShop_Upgrade.Models.Discount> Discounts { get; set; }
-        public DbSet<PetShop_Upgrade.Models.DiscountCategory> DiscountCategories { get; set; }
-        public DbSet<PetShop_Upgrade.Models.DiscountProduct> DiscountProducts { get; set; }
-        public DbSet<PetShop_Upgrade.Models.DiscountUsage> DiscountUsages { get; set; }
-        public DbSet<PetShop_Upgrade.Models.FoodsDetail> FoodsDetails { get; set; }
-        public DbSet<PetShop_Upgrade.Models.InventoryLock> InventoryLocks { get; set; }
-        public DbSet<PetShop_Upgrade.Models.Member> Members { get; set; }
-        public DbSet<PetShop_Upgrade.Models.Order> Orders { get; set; }
-        public DbSet<PetShop_Upgrade.Models.OrderDetail> OrderDetails { get; set; }
-        public DbSet<PetShop_Upgrade.Models.Payment> Payments { get; set; }
-        public DbSet<PetShop_Upgrade.Models.PaymentWebhookLog> PaymentWebhookLogs { get; set; }
-        public DbSet<PetShop_Upgrade.Models.PetHealthRecord> PetHealthRecords { get; set; }
-        public DbSet<PetShop_Upgrade.Models.PetVariant> PetVariant { get; set; }
-        public DbSet<PetShop_Upgrade.Models.PetVaccination> PetVaccination { get; set; }
-        public DbSet<PetShop_Upgrade.Models.Product> Products { get; set; }
-        public DbSet<PetShop_Upgrade.Models.ProductColor> ProductColors { get; set; }
-        public DbSet<PetShop_Upgrade.Models.ProductHistory> ProductHistories { get; set; }
-        public DbSet<PetShop_Upgrade.Models.ProductImage> ProductImages { get; set; }
-        public DbSet<PetShop_Upgrade.Models.Rating> Ratings { get; set; }
-        public DbSet<PetShop_Upgrade.Models.ToysDetail> ToysDetails { get; set; }
+        public DbSet<Address> Addresses { get; set; }
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Color> Colors { get; set; }
+        public DbSet<Discount> Discounts { get; set; }
+        public DbSet<DiscountCategory> DiscountCategories { get; set; }
+        public DbSet<DiscountProduct> DiscountProducts { get; set; }
+        public DbSet<DiscountUsage> DiscountUsages { get; set; }
+        public DbSet<FoodsDetail> FoodsDetails { get; set; }
+        public DbSet<InventoryLock> InventoryLocks { get; set; }
+        public DbSet<Member> Members { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<PaymentWebhookLog> PaymentWebhookLogs { get; set; }
+        public DbSet<PetHealthRecord> PetHealthRecords { get; set; }
+        public DbSet<PetVariant> PetVariant { get; set; }
+        public DbSet<PetVaccination> PetVaccination { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<ProductColor> ProductColors { get; set; }
+        public DbSet<ProductHistory> ProductHistories { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
+        public DbSet<Rating> Ratings { get; set; }
+        public DbSet<ToysDetail> ToysDetails { get; set; }
         //public DbSet<PetShop_Upgrade.Models.TransactionLog> TransactionLogs { get; set; }
-        public DbSet<PetShop_Upgrade.Models.Vaccine> Vaccine { get; set; }
-        public DbSet<PetShop_Upgrade.Models.RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Vaccine> Vaccine { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Appointment> Appointments { get; set; }
+        public DbSet<PetViewingAppointment> PetViewingAppointments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -127,6 +129,29 @@ namespace PetShop_Upgrade.Data
                 .WithMany(p => p.OrderDetails)
                 .HasForeignKey(od => od.ProductId)
                 .OnDelete(DeleteBehavior.Restrict);
+            // =====================
+            // PetAppointment
+            // =====================
+            // PetAppointment -> Member (N-1)
+            modelBuilder.Entity<Appointment>()
+                .HasOne(o => o.Member)
+                .WithMany(m => m.Appointments)
+                .HasForeignKey(o => o.MemberId)
+                .OnDelete(DeleteBehavior.Restrict);
+            // PetViewingAppointment -> Product (N-1)
+            modelBuilder.Entity<PetViewingAppointment>()
+                .HasOne(o => o.Product)
+                .WithMany(m => m.PetViewingAppointments)
+                .HasForeignKey(o => o.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+            // PetViewingAppointment -> Appointment (1-1)
+            modelBuilder.Entity<PetViewingAppointment>()
+                .HasKey(pva => pva.AppointmentId);
+            modelBuilder.Entity<PetViewingAppointment>   ()
+                .HasOne(pva => pva.Appointment)
+                .WithOne()
+                .HasForeignKey<PetViewingAppointment>(pva => pva.AppointmentId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // =====================
             // PAYMENT
@@ -209,9 +234,12 @@ namespace PetShop_Upgrade.Data
             // PetVariant -> Product (N-1)
             modelBuilder.Entity<PetVariant>()
                 .HasOne(pv => pv.Product)
-                .WithMany(p => p.PetVariants)
-                .HasForeignKey(pv => pv.ProductId)
+                .WithOne(p => p.PetVariant)
+                .HasForeignKey<PetVariant>(pv => pv.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PetVariant>()
+                .HasKey(pv => pv.ProductId);
 
             // PetHealthRecord -> Product (N-1)
             modelBuilder.Entity<PetHealthRecord>()

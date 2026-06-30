@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
+using PetShop_Upgrade.Models;
+using System.Linq.Expressions;
 
 namespace PetShop_Upgrade.Repositories.Interfaces
 {
@@ -10,7 +12,13 @@ namespace PetShop_Upgrade.Repositories.Interfaces
         IRefreshTokenRepository RefreshTokenRepository { get; }
         ICartRepository CartRepository { get; }
         IColorRepository ColorRepository { get; }
-        ICategoryRepository CategoryRepository  { get; }
+        ICategoryRepository CategoryRepository { get; }
+        IPetVariantRepository PetVariantRepository { get; }
+        IFoodDetailRepository FoodDetailRepository { get; }
+        IToyDetailRepository ToyDetailRepository { get; }
         IProductRepository ProductRepository { get; }
+        IProductHistoryRepository ProductHistoryRepository { get; }
+        IDiscountRepository DiscountRepository { get; }
+        IRepository<CartItem> CartItemRepository { get; }
     }
 }

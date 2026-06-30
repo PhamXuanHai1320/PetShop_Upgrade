@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PetShop_Upgrade.Data;
 using PetShop_Upgrade.Repositories.Interfaces;
+using System.Linq.Expressions;
 
 namespace PetShop_Upgrade.Repositories
 {
@@ -23,6 +24,12 @@ namespace PetShop_Upgrade.Repositories
         {
             _dbSet.Remove(entity);
         }
+
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.Where(predicate).ToListAsync();
+        }
+
         public async Task<IEnumerable<T>> GetAll()
         {
             return await _dbSet

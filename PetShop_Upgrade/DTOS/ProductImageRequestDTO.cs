@@ -1,14 +1,12 @@
 ﻿using static PetShop_Upgrade.Models.Enum;
 
-namespace PetShop_Upgrade.Models
+namespace PetShop_Upgrade.DTOS
 {
-    public class ProductImage
+    public class ProductImageRequestDTO
     {
-        public ProductImage() { }
         public int Id { get; set; }
         public string ImageUrl { get; set; }
         public IsMain IsMain { get; set; } = IsMain.NOT_MAIN;
-        public int ProductId { get; set; }
-        public Product Product { get; set; }
+        public int? ProductId { get; set; }
     }
 }
