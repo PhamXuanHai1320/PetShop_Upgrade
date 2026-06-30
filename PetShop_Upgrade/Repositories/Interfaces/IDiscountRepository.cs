@@ -12,5 +12,7 @@ namespace PetShop_Upgrade.Repositories.Interfaces
         Task<IEnumerable<Discount>> GetDiscountsByCategoryIdAsync(int categoryId);
         Task<IEnumerable<Discount>> GetDiscountsByNameAsync(string discountName);
         Task<IEnumerable<Discount>> GetDiscountsByFillerAsync(DiscountFilterDTO discountFilterDTO);
+        Task<IEnumerable<Discount>> GetDiscountsByProductIdAndCategoryIdAsync(int productId, int categoryId);
+        Task<IEnumerable<Discount>> GetDiscountsByProductIdAndCategoryIdAsync(IEnumerable<int> productIds, IEnumerable<int> categoryIds);
     }
 }

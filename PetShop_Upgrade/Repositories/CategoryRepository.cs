@@ -2,6 +2,7 @@
 using PetShop_Upgrade.Data;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;
+using static PetShop_Upgrade.Models.Enum;
 
 namespace PetShop_Upgrade.Repositories
 {
@@ -13,21 +14,15 @@ namespace PetShop_Upgrade.Repositories
         public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
         {
             return await _context.Categories
-                .Where(c => c.IsActive == 1)
+                .Where(c => c.IsActive == IsActive.ACTIVE)
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<Category>> GetCategoriesByNameAsync(string name)
         {
             return await _context.Categories
-                .Where(c => c.Name.Contains(name) && c.IsActive == 1)
+                .Where(c => c.Name.Contains(name) && c.IsActive == IsActive.ACTIVE)
                 .ToListAsync();
-        }
-
-        public async Task<Category> GetCategoryByIdAsync(int id)
-        {
-            return await _context.Categories
-                .FirstOrDefaultAsync(c => c.Id == id && c.IsActive == 1);
         }
     }
 }

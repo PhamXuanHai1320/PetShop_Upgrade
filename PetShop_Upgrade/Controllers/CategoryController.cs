@@ -17,21 +17,21 @@ namespace PetShop_Upgrade.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetAllCategories()
+        public async Task<IActionResult> GetAllCategories()
         {
             var categories = await _categoryService.GetAllCategoriesAsync();
             return Ok(categories);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<CategoryDTO>> GetCategoryById([FromRoute] int id)
+        public async Task<IActionResult> GetCategoryById([FromRoute] int id)
         {
             var category = await _categoryService.GetCategoryByIdAsync(id);
             return Ok(category);
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetCategoryByName(string name)
+        public async Task<IActionResult> GetCategoryByName(string name)
         {
             var categories = await _categoryService.GetCategoryByNameAsync(name);
             return Ok(categories);
@@ -39,15 +39,15 @@ namespace PetShop_Upgrade.Controllers
 
         [Authorize(Roles = "Admin,Employee")]
         [HttpPost]
-        public async Task<ActionResult<CategoryDTO>> AddCategory([FromBody]CategoryDTO categoryDTO)
+        public async Task<IActionResult> AddCategory([FromBody]CategoryDTO categoryDTO)
         {
             var createdCategory = await _categoryService.AddCategoryAsync(categoryDTO);
-            return CreatedAtAction(nameof(GetCategoryById), new { id = createdCategory.Id }, createdCategory);
+            return Ok(createdCategory);
         }
 
         [Authorize(Roles = "Admin,Employee")]
         [HttpPut("{id}")]
-        public async Task<ActionResult<CategoryDTO>> UpdateCategory([FromRoute] int id, [FromBody] CategoryDTO categoryDTO)
+        public async Task<IActionResult> UpdateCategory([FromRoute] int id, [FromBody] CategoryDTO categoryDTO)
         {
             categoryDTO.Id = id;
             var updatedCategory = await _categoryService.UpdateCategoryAsync(categoryDTO);

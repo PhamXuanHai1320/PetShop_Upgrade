@@ -1,4 +1,6 @@
-﻿namespace PetShop_Upgrade.DTOS
+﻿using static PetShop_Upgrade.Models.Enum;
+
+namespace PetShop_Upgrade.DTOS
 {
     public class CreateDiscountDTO
     {
@@ -10,10 +12,10 @@
         public double? MaxDiscountAmount { get; set; } // Giá trị giảm giá cao nhất
         public int? MaxUsage { get; set; } // Tổng số lần mã này được nhập
         public int? MaxUsagePerUser { get; set; } // Số lần tối đa một người dùng được phép nhập mã này
-        public int DiscountType { get; set; } = 1;// 0: percentage, 1: fixed amount
+        public DiscountType DiscountType { get; set; } = DiscountType.FIXED_AMOUNT;// 0: percentage, 1: fixed amount
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public int IsActive { get; set; } = 1; // 0: InActive; 1: Active
+        public IsActive IsActive { get; set; } = IsActive.ACTIVE; // 0: InActive; 1: Active
         public DateTime CreateAt { get; set; } = DateTime.Now;
         public int CreatedBy { get; set; }
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using static PetShop_Upgrade.Models.Enum;
 
 namespace PetShop_Upgrade.Models
 {
@@ -16,5 +17,6 @@ namespace PetShop_Upgrade.Models
         public ICollection<DiscountUsage> DiscountUsages { get; set; } = [];
         public ICollection<Discount> Discounts { get; set; } = [];
         public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
+        public ICollection<Appointment> Appointments { get; set; } = [];
     }
 }

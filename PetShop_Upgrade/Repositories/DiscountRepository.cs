@@ -3,6 +3,7 @@ using PetShop_Upgrade.Data;
 using PetShop_Upgrade.DTOS;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;
+using static PetShop_Upgrade.Models.Enum;
 
 namespace PetShop_Upgrade.Repositories
 {
@@ -84,11 +85,40 @@ namespace PetShop_Upgrade.Repositories
         {
             return await _context.Discounts
                 .Where(
-                    d => d.IsActive == 1 &&
+                    d => d.IsActive == IsActive.ACTIVE &&
                     d.StartDate <= DateTime.UtcNow &&
                     (d.EndDate == null || d.EndDate >= DateTime.UtcNow) &&
                     (d.MaxUsage == null || d.DiscountUsages.Count < d.MaxUsage))
                 .OrderByDescending(d => d.CreateAt)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Discount>> GetDiscountsByProductIdAndCategoryIdAsync(int productId, int categoryId)
+        {
+            return await _context.Discounts
+                .Where(d =>
+                    (d.DiscountProducts.Any(dp => dp.ProductId == productId) ||
+                    d.DiscountCategories.Any(dc => dc.CategoryId == categoryId)) &&
+                    d.IsActive == IsActive.ACTIVE &&
+                    d.StartDate <= DateTime.UtcNow &&
+                    (d.EndDate == null || d.EndDate >= DateTime.UtcNow) &&
+                    (d.MaxUsage == null || d.DiscountUsages.Count < d.MaxUsage))
+                .OrderByDescending(d => d.CreateAt)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Discount>> GetDiscountsByProductIdAndCategoryIdAsync(IEnumerable<int> productIds, IEnumerable<int> categoryIds)
+        {
+            return await _context.Discounts
+                .Where(d =>
+                    (d.DiscountProducts.Any(dp => productIds.Contains(dp.ProductId)) ||
+                     d.DiscountCategories.Any(dc => categoryIds.Contains(dc.CategoryId))) &&
+                    d.IsActive == IsActive.ACTIVE &&
+                    d.StartDate <= DateTime.UtcNow &&
+                    (d.EndDate == null || d.EndDate >= DateTime.UtcNow) &&
+                    (d.MaxUsage == null || d.DiscountUsages.Count < d.MaxUsage))
+                .Include(d => d.DiscountProducts)
+                .Include(d => d.DiscountCategories)
                 .ToListAsync();
         }
     }

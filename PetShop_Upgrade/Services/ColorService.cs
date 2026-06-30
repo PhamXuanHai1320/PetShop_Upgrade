@@ -100,23 +100,23 @@ namespace PetShop_Upgrade.Services
             }).ToList();
             return colorDTOs;
         }
-        public async Task<IEnumerable<ProductColorDTO>> GetColorsByProductIdAsync(int productId)
+        public async Task<IEnumerable<ProductColorRequestDTO>> GetColorsByProductIdAsync(int productId)
         {
             var colors = await _unitOfWork.ColorRepository.GetColorsByProductIdAsync(productId);
             if (colors == null || !colors.Any())
             {
-                return Enumerable.Empty<ProductColorDTO>();
+                return Enumerable.Empty<ProductColorRequestDTO>();
             }
 
             var productColorsDTO = colors.Select(c =>
             {
                 var pc = c.ProductColors.FirstOrDefault();
-                return new ProductColorDTO
+                return new ProductColorRequestDTO
                 {
                     Id = c.Id,
                     ColorName = c.ColorName,
-                    Quantity = pc?.Quantity,
-                    ProductId = pc?.ProductId
+                    Quantity = pc.Quantity,
+                    ProductId = pc.ProductId
                 };
             }).ToList();
             return productColorsDTO;

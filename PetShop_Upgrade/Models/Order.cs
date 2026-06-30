@@ -1,4 +1,6 @@
-﻿namespace PetShop_Upgrade.Models
+﻿using static PetShop_Upgrade.Models.Enum;
+
+namespace PetShop_Upgrade.Models
 {
     public class Order
     {
@@ -7,7 +9,7 @@
         public double TotalPrice { get; set; }
         public double DiscountPrice { get; set; }
         public double FinalPrice { get; set; }
-        public string status { get; set; }
+        public OrderStatus status { get; set; } = OrderStatus.PENDING;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public int MemberId { get; set; }
         public Member Member { get; set; }

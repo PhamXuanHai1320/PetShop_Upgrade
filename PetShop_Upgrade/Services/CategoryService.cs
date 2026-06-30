@@ -3,6 +3,7 @@ using PetShop_Upgrade.Exceptions;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;
 using PetShop_Upgrade.Services.Interfaces;
+using static PetShop_Upgrade.Models.Enum;
 
 namespace PetShop_Upgrade.Services
 {
@@ -29,7 +30,7 @@ namespace PetShop_Upgrade.Services
 
         public async Task DeleteCategoryAsync(int id)
         {
-            var category = await _unitOfWork.CategoryRepository.GetCategoryByIdAsync(id);
+            var category = await _unitOfWork.CategoryRepository.GetById(id);
             if (category == null)
             {
                 throw new NotFoundException($"Không tìm thấy category với id: {id}");
@@ -59,7 +60,7 @@ namespace PetShop_Upgrade.Services
    
         public async Task<CategoryDTO> GetCategoryByIdAsync(int id)
         {
-            var category = await _unitOfWork.CategoryRepository.GetCategoryByIdAsync(id);
+            var category = await _unitOfWork.CategoryRepository.GetById(id);
             if (category == null)
             {
                 throw new NotFoundException($"Không tìm thấy category với id: {id}");
@@ -95,11 +96,11 @@ namespace PetShop_Upgrade.Services
             await _unitOfWork.SaveChangesAsync();
             return categoryDTO;
         }
-        private void MapCategoryDTOToCategory(CategoryDTO categoryDTO, Models.Category category)
+        private void MapCategoryDTOToCategory(CategoryDTO categoryDTO, Category category)
         {
             category.Name = categoryDTO.Name?.Trim();
             category.Description = categoryDTO.Description;
-            category.ProductType = categoryDTO.ProductType?.Trim();
+            category.ProductType = categoryDTO.ProductType;
             category.IsActive = categoryDTO.IsActive;
         }
         private CategoryDTO MapCategoryToDTO(Category category)

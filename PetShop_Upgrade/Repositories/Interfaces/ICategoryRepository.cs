@@ -6,6 +6,5 @@ namespace PetShop_Upgrade.Repositories.Interfaces
     {
         Task<IEnumerable<Category>> GetCategoriesByNameAsync(string name);
         Task<IEnumerable<Category>> GetAllCategoriesAsync();
-        Task<Category> GetCategoryByIdAsync(int id);
     }
 }

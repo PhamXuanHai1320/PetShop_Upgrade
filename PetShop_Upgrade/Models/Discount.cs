@@ -1,4 +1,6 @@
-﻿namespace PetShop_Upgrade.Models
+﻿using static PetShop_Upgrade.Models.Enum;
+
+namespace PetShop_Upgrade.Models
 {
     public class Discount
     {
@@ -12,10 +14,10 @@
         public double? MaxDiscountAmount { get; set; }
         public int? MaxUsage { get; set; }
         public int? MaxUsagePerUser { get; set; }
-        public int DiscountType { get; set; } = 1;// 0: percentage, 1: fixed amount
+        public DiscountType DiscountType { get; set; } = DiscountType.FIXED_AMOUNT;// 0: percentage, 1: fixed amount
         public DateTime StartDate { get; set; } = DateTime.Now;
         public DateTime? EndDate { get; set; }
-        public int IsActive { get; set; } = 1; // 0: InActive; 1: Active
+        public IsActive IsActive { get; set; } = IsActive.ACTIVE; // 0: InActive; 1: Active
         public DateTime CreateAt { get; set; } = DateTime.Now;
         public int CreatedBy { get; set; }
         public Member Member { get; set; }
