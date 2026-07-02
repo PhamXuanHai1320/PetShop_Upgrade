@@ -23,6 +23,7 @@ namespace PetShop_Upgrade.Repositories
             ProductHistoryRepository = new ProductHistoryRepository(_context);
             DiscountRepository = new DiscountRepository(_context);
             CartItemRepository = new Repository<CartItem>(context);
+            ProductColorRepository = new Repository<ProductColor>(context);
         }
 
         public IMemberRepository MemberRepository { get; private set; }
@@ -44,6 +45,8 @@ namespace PetShop_Upgrade.Repositories
         public IFoodDetailRepository FoodDetailRepository { get; private set; }
 
         public IToyDetailRepository ToyDetailRepository { get; private set; }
+
+        public IRepository<ProductColor> ProductColorRepository { get; private set; }
 
         public async Task SaveChangesAsync()
         {

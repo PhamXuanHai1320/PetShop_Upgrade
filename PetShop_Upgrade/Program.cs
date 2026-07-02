@@ -44,6 +44,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IFoodsDetailService, FoodsDetailService>();
 builder.Services.AddScoped<IToysDetailService, ToysDetailService>();
 builder.Services.AddScoped<IPetVariantService, PetVariantService>();
+builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IMinioService, MinioService>();
 
 // Add Repository to the container.

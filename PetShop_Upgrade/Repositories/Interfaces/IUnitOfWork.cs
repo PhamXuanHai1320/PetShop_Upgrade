@@ -20,5 +20,6 @@ namespace PetShop_Upgrade.Repositories.Interfaces
         IProductHistoryRepository ProductHistoryRepository { get; }
         IDiscountRepository DiscountRepository { get; }
         IRepository<CartItem> CartItemRepository { get; }
+        IRepository<ProductColor> ProductColorRepository { get; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using PetShop_Upgrade.DTOS.Cart;
 using PetShop_Upgrade.DTOS.Colors;
 using PetShop_Upgrade.DTOS.Discounts;
 using PetShop_Upgrade.DTOS.Products.Admin;
@@ -73,6 +74,15 @@ namespace PetShop_Upgrade.AutoMapper
             CreateMap<ProductColor, ProductColorResponseDTO>()
                 .ForMember(dest => dest.ColorName,
                 opt => opt.MapFrom(src => src.Color.ColorName));
+            // --- Cấu hình cho Module Cart ---
+            CreateMap<Cart, CartDTO>();
+            CreateMap<CartItem, CartItemDTO>()
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.ProductName))
+                .ForMember(dest => dest.ProductImageUrl,
+                    opt => opt.MapFrom(src =>
+                        src.Product.ProductImages.FirstOrDefault(img => img.IsMain == IsMain.MAIN) != null
+                            ? $"{_baseUrl}/{_bucketName}/{src.Product.ProductImages.First(img => img.IsMain == IsMain.MAIN).ImageUrl}"
+                            : null));
         }
     }
 }
