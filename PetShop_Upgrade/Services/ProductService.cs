@@ -1,5 +1,9 @@
 ﻿using AutoMapper;
-using PetShop_Upgrade.DTOS;
+using PetShop_Upgrade.DTOS.Foods.Client;
+using PetShop_Upgrade.DTOS.Pets.Client;
+using PetShop_Upgrade.DTOS.Products.Admin;
+using PetShop_Upgrade.DTOS.Products.Client;
+using PetShop_Upgrade.DTOS.Toys.Client;
 using PetShop_Upgrade.Exceptions;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;

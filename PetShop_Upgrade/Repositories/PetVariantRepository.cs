@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Minio.DataModel.Notification;
 using PetShop_Upgrade.Data;
-using PetShop_Upgrade.DTOS;
+using PetShop_Upgrade.DTOS.Pets.Admin;
+using PetShop_Upgrade.DTOS.Pets.Client;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;
 using static PetShop_Upgrade.Models.Enum;
@@ -31,7 +32,7 @@ namespace PetShop_Upgrade.Repositories
         }
 
         public async Task<IEnumerable<PetVariant>> GetPetVariantByFillerAsync(
-            PetFillerDTO petFilterDTO, int page, int pageSize)
+            PetFilterDTO petFilterDTO, int page, int pageSize)
         {
             var query = _context.PetVariant
                 .Include(p => p.Product)

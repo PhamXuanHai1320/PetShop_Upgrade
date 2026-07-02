@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PetShop_Upgrade.DTOS;
+using PetShop_Upgrade.DTOS.Pets.Admin;
+using PetShop_Upgrade.DTOS.Pets.Client;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Orchestrators.Interfaces;
 using PetShop_Upgrade.Services.Interfaces;
@@ -52,7 +53,7 @@ namespace PetShop_Upgrade.Controllers
             return Ok(petVariants);
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllPet([FromQuery] PetFillerDTO petFilterDTO, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetAllPet([FromQuery] PetFilterDTO petFilterDTO, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var pets = await _petVariantService.GetPetVariantByFillerAsync(petFilterDTO, page, pageSize);
             return Ok(pets);

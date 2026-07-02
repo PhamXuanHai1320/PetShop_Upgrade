@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PetShop_Upgrade.Data;
-using PetShop_Upgrade.DTOS;
+using PetShop_Upgrade.DTOS.Foods.Admin;
+using PetShop_Upgrade.DTOS.Foods.Client;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;
 using static PetShop_Upgrade.Models.Enum;
@@ -30,7 +31,7 @@ namespace PetShop_Upgrade.Repositories
         }
 
         public async Task<IEnumerable<FoodsDetail>> GetFoodByFillerAsync(
-            FoodFillerDTO foodFilterDTO, int page, int pageSize)
+            FoodFilterDTO foodFilterDTO, int page, int pageSize)
         {
             var query = _context.FoodsDetails
                 .Include(p => p.Product)
@@ -67,7 +68,7 @@ namespace PetShop_Upgrade.Repositories
         }
 
         public async Task<IEnumerable<FoodsDetail>> AdminGetFoodDetailByFillerAsync(
-            AdminFoodFillerDTO foodFilterDTO, int page, int pageSize)
+            AdminFoodFilterDTO foodFilterDTO, int page, int pageSize)
         {
             var query = _context.FoodsDetails
                 .Include(p => p.Product)

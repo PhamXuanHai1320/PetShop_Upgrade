@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using PetShop_Upgrade.DTOS;
+using PetShop_Upgrade.DTOS.Discounts;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;
 using PetShop_Upgrade.Services.Interfaces;

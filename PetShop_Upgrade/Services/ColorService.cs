@@ -1,4 +1,4 @@
-﻿using PetShop_Upgrade.DTOS;
+﻿using PetShop_Upgrade.DTOS.Colors;
 using PetShop_Upgrade.Exceptions;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;

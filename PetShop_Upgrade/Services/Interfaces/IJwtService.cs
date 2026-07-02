@@ -1,4 +1,4 @@
-﻿using PetShop_Upgrade.DTOS;
+﻿using PetShop_Upgrade.DTOS.Members.Admin;
 using PetShop_Upgrade.Models;
 using System.Security.Claims;
 

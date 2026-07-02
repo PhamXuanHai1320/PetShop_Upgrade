@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PetShop_Upgrade.Data;
-using PetShop_Upgrade.DTOS;
+using PetShop_Upgrade.DTOS.Discounts;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;
 using static PetShop_Upgrade.Models.Enum;

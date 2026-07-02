@@ -1,4 +1,6 @@
-﻿using PetShop_Upgrade.DTOS;
+﻿using PetShop_Upgrade.DTOS.Foods.Admin;
+using PetShop_Upgrade.DTOS.Pets.Admin;
+using PetShop_Upgrade.DTOS.Toys.Admin;
 
 namespace PetShop_Upgrade.Orchestrators.Interfaces
 {

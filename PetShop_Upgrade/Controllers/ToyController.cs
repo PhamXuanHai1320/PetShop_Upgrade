@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PetShop_Upgrade.DTOS;
+using PetShop_Upgrade.DTOS.Toys.Admin;
+using PetShop_Upgrade.DTOS.Toys.Client;
 using PetShop_Upgrade.Orchestrators.Interfaces;
 using PetShop_Upgrade.Services;
 using PetShop_Upgrade.Services.Interfaces;
@@ -46,13 +47,13 @@ namespace PetShop_Upgrade.Controllers
         }
         [Authorize(Roles = "Admin,Employee")]
         [HttpGet("admin")]
-        public async Task<IActionResult> AdminGetAllToy([FromQuery] AdminToyFillerDTO toyFilterDTO, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> AdminGetAllToy([FromQuery] AdminToyFilterDTO toyFilterDTO, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var toyDetailDTO = await _toysDetailService.AdminGetToyDetailByFillerAsync(toyFilterDTO, page, pageSize);
             return Ok(toyDetailDTO);
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllToy([FromQuery] ToyFillerDTO toyFilterDTO, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetAllToy([FromQuery] ToyFilterDTO toyFilterDTO, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var pets = await _toysDetailService.GetToyDetailByFillerAsync(toyFilterDTO, page, pageSize);
             return Ok(pets);

@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
-using PetShop_Upgrade.DTOS;
+using PetShop_Upgrade.DTOS.Foods.Admin;
+using PetShop_Upgrade.DTOS.Foods.Client;
+using PetShop_Upgrade.DTOS.Products.Client;
 using PetShop_Upgrade.Exceptions;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;
@@ -77,7 +79,7 @@ namespace PetShop_Upgrade.Services
             foodResponseRequest.AgeGroup = foodDetail.AgeGroup;
             return foodResponseRequest;
         }
-        public async Task<IEnumerable<ProductItemsDTO>> GetFoodDetailByFillerAsync(FoodFillerDTO foodFilterDTO, int page, int pageSize)
+        public async Task<IEnumerable<ProductItemsDTO>> GetFoodDetailByFillerAsync(FoodFilterDTO foodFilterDTO, int page, int pageSize)
         {
             var foodDetails = await _unitOfWork.FoodDetailRepository.GetFoodByFillerAsync(foodFilterDTO, page, pageSize);
             var products = foodDetails.Select(p => p.Product).ToList();
@@ -134,7 +136,7 @@ namespace PetShop_Upgrade.Services
         }
 
         public async Task<IEnumerable<AdminFoodItemDTO>> AdminGetFoodDetailByFillerAsync(
-            AdminFoodFillerDTO foodFilterDTO, int page, int pageSize)
+            AdminFoodFilterDTO foodFilterDTO, int page, int pageSize)
         {
             var foods = await _unitOfWork.FoodDetailRepository
                 .AdminGetFoodDetailByFillerAsync(foodFilterDTO, page, pageSize);

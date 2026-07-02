@@ -1,5 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
-using PetShop_Upgrade.DTOS;
+using PetShop_Upgrade.DTOS.Members.Admin;
 using PetShop_Upgrade.Services.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Numerics;

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Minio.DataModel.Notification;
 using PetShop_Upgrade.Data;
-using PetShop_Upgrade.DTOS;
+using PetShop_Upgrade.DTOS.Products.Client;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;
 using static PetShop_Upgrade.Models.Enum;

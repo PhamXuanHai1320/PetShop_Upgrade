@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 using PetShop_Upgrade.Data;
-using PetShop_Upgrade.DTOS;
+using PetShop_Upgrade.DTOS.Toys.Admin;
+using PetShop_Upgrade.DTOS.Toys.Client;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;
 using static PetShop_Upgrade.Models.Enum;
@@ -31,7 +32,7 @@ namespace PetShop_Upgrade.Repositories
         }
 
         public async Task<IEnumerable<ToysDetail>> GetToyByFillerAsync(
-            ToyFillerDTO toyFilterDTO, int page, int pageSize)
+            ToyFilterDTO toyFilterDTO, int page, int pageSize)
         {
             var query = _context.ToysDetails
                 .Include(p => p.Product)
@@ -66,7 +67,7 @@ namespace PetShop_Upgrade.Repositories
         }
 
         public async Task<IEnumerable<ToysDetail>> AdminGetToyDetailByFillerAsync(
-            AdminToyFillerDTO toyFilterDTO, int page, int pageSize)
+            AdminToyFilterDTO toyFilterDTO, int page, int pageSize)
         {
             var query = _context.ToysDetails
                 .Include(p => p.Product)

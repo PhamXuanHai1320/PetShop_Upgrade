@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PetShop_Upgrade.DTOS;
+using PetShop_Upgrade.DTOS.Foods.Admin;
+using PetShop_Upgrade.DTOS.Foods.Client;
 using PetShop_Upgrade.Orchestrators.Interfaces;
 using PetShop_Upgrade.Services;
 using PetShop_Upgrade.Services.Interfaces;
@@ -45,13 +46,13 @@ namespace PetShop_Upgrade.Controllers
         }
         [Authorize(Roles = "Admin,Employee")]
         [HttpGet("admin")]
-        public async Task<IActionResult> AdminGetAllFood([FromQuery] AdminFoodFillerDTO foodFilterDTO, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> AdminGetAllFood([FromQuery] AdminFoodFilterDTO foodFilterDTO, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var foods = await _foodsDetailService.AdminGetFoodDetailByFillerAsync(foodFilterDTO, page, pageSize);
             return Ok(foods);
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllFood([FromQuery] FoodFillerDTO foodFilterDTO, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetAllFood([FromQuery] FoodFilterDTO foodFilterDTO, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var foods = await _foodsDetailService.GetFoodDetailByFillerAsync(foodFilterDTO, page, pageSize);
             return Ok(foods);

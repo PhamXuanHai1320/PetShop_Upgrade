@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
-using PetShop_Upgrade.DTOS;
+using PetShop_Upgrade.DTOS.Pets.Admin;
+using PetShop_Upgrade.DTOS.Pets.Client;
+using PetShop_Upgrade.DTOS.Products.Client;
 using PetShop_Upgrade.Exceptions;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;
@@ -70,7 +72,7 @@ namespace PetShop_Upgrade.Services
             return petResponseRequestDTO;
         }
         public async Task<IEnumerable<ProductItemsDTO>> GetPetVariantByFillerAsync(
-            PetFillerDTO petFilterDTO, int page, int pageSize)
+            PetFilterDTO petFilterDTO, int page, int pageSize)
         {
             var petVariants = await _unitOfWork.PetVariantRepository
                 .GetPetVariantByFillerAsync(petFilterDTO, page, pageSize);

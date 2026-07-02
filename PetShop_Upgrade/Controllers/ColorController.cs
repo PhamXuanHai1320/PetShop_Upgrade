@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PetShop_Upgrade.DTOS;
+using PetShop_Upgrade.DTOS.Colors;
 using PetShop_Upgrade.Services.Interfaces;
 using System.Threading.Tasks;
 

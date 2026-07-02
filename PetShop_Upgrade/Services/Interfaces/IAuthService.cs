@@ -1,4 +1,4 @@
-﻿using PetShop_Upgrade.DTOS;
+﻿using PetShop_Upgrade.DTOS.Auth;
 
 namespace PetShop_Upgrade.Services.Interfaces
 {

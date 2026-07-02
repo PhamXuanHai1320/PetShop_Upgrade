@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
-using PetShop_Upgrade.DTOS;
+using PetShop_Upgrade.DTOS.Products.Client;
+using PetShop_Upgrade.DTOS.Toys.Admin;
+using PetShop_Upgrade.DTOS.Toys.Client;
 using PetShop_Upgrade.Exceptions;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;
@@ -65,7 +67,7 @@ namespace PetShop_Upgrade.Services
             toyResponseRequest.Size = toyDetail.Size;
             return toyResponseRequest;
         }
-        public async Task<IEnumerable<ProductItemsDTO>> GetToyDetailByFillerAsync(ToyFillerDTO toyFilterDTO, int page, int pageSize)
+        public async Task<IEnumerable<ProductItemsDTO>> GetToyDetailByFillerAsync(ToyFilterDTO toyFilterDTO, int page, int pageSize)
         {
             var toyDetails = await _unitOfWork.ToyDetailRepository.GetToyByFillerAsync(toyFilterDTO, page, pageSize);
             var products = toyDetails.Select(p => p.Product).ToList();
@@ -122,7 +124,7 @@ namespace PetShop_Upgrade.Services
         }
 
         public async Task<IEnumerable<AdminToyItemDTO>> AdminGetToyDetailByFillerAsync(
-            AdminToyFillerDTO toyFilterDTO, int page, int pageSize)
+            AdminToyFilterDTO toyFilterDTO, int page, int pageSize)
         {
             var toys = await _unitOfWork.ToyDetailRepository
                 .AdminGetToyDetailByFillerAsync(toyFilterDTO, page, pageSize);

@@ -1,4 +1,5 @@
-﻿using PetShop_Upgrade.DTOS;
+﻿using PetShop_Upgrade.DTOS.Products.Admin;
+using PetShop_Upgrade.DTOS.Products.Client;
 using PetShop_Upgrade.Models;
 
 namespace PetShop_Upgrade.Services.Interfaces

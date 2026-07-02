@@ -1,4 +1,6 @@
-﻿using PetShop_Upgrade.DTOS;
+﻿using PetShop_Upgrade.DTOS.Foods.Admin;
+using PetShop_Upgrade.DTOS.Foods.Client;
+using PetShop_Upgrade.DTOS.Products.Client;
 
 namespace PetShop_Upgrade.Services.Interfaces
 {
@@ -7,7 +9,7 @@ namespace PetShop_Upgrade.Services.Interfaces
         Task CreateFoodDetailAsync(int productId, CreateFoodDTO createFoodDTO);
         Task UpdateFoodDetailAsync(UpdateFoodDTO updateFoodDTO, int productId);
         Task<FoodResponseRequestDTO> GetFoodDetailByIdAsync(int productId);
-        Task<IEnumerable<ProductItemsDTO>> GetFoodDetailByFillerAsync(FoodFillerDTO foodFilterDTO, int page, int pageSize);
-        Task<IEnumerable<AdminFoodItemDTO>> AdminGetFoodDetailByFillerAsync(AdminFoodFillerDTO foodFilterDTO, int page, int pageSize);
+        Task<IEnumerable<ProductItemsDTO>> GetFoodDetailByFillerAsync(FoodFilterDTO foodFilterDTO, int page, int pageSize);
+        Task<IEnumerable<AdminFoodItemDTO>> AdminGetFoodDetailByFillerAsync(AdminFoodFilterDTO foodFilterDTO, int page, int pageSize);
     }
 }

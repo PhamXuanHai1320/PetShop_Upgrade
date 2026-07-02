@@ -1,5 +1,8 @@
 ﻿using AutoMapper;
-using PetShop_Upgrade.DTOS;
+using PetShop_Upgrade.DTOS.Colors;
+using PetShop_Upgrade.DTOS.Discounts;
+using PetShop_Upgrade.DTOS.Products.Admin;
+using PetShop_Upgrade.DTOS.Products.Client;
 using PetShop_Upgrade.Models;
 using System.Globalization;
 using static PetShop_Upgrade.Models.Enum;

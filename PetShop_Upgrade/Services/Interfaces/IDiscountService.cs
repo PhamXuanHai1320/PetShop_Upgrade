@@ -1,4 +1,4 @@
-﻿using PetShop_Upgrade.DTOS;
+﻿using PetShop_Upgrade.DTOS.Discounts;
 using PetShop_Upgrade.Models;
 
 namespace PetShop_Upgrade.Services.Interfaces

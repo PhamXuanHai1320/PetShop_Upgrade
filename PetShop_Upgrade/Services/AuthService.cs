@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using Microsoft.AspNetCore.Identity;
-using PetShop_Upgrade.DTOS;
+using PetShop_Upgrade.DTOS.Auth;
+using PetShop_Upgrade.DTOS.Members.Admin;
 using PetShop_Upgrade.Exceptions;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;

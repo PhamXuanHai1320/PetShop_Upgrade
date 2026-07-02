@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
-using PetShop_Upgrade.DTOS;
+using PetShop_Upgrade.DTOS.Foods.Admin;
+using PetShop_Upgrade.DTOS.Pets.Admin;
+using PetShop_Upgrade.DTOS.Toys.Admin;
 using PetShop_Upgrade.Exceptions;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Orchestrators.Interfaces;
