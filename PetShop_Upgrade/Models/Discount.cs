@@ -6,7 +6,7 @@ namespace PetShop_Upgrade.Models
     {
         public Discount() { }
         public int Id { get; set; }
-        public string Code { get; set; }
+        public string? Code { get; set; }
         public string DiscountName { get; set; }
         public string? Description { get; set; }
         public double DiscountValue { get; set; } 
@@ -15,6 +15,7 @@ namespace PetShop_Upgrade.Models
         public int? MaxUsage { get; set; }
         public int? MaxUsagePerUser { get; set; }
         public DiscountType DiscountType { get; set; } = DiscountType.FIXED_AMOUNT;// 0: percentage, 1: fixed amount
+        public DiscountScope Scope { get; set; } = DiscountScope.PRODUCT_CATEGORY;
         public DateTime StartDate { get; set; } = DateTime.Now;
         public DateTime? EndDate { get; set; }
         public IsActive IsActive { get; set; } = IsActive.ACTIVE; // 0: InActive; 1: Active

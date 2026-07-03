@@ -52,5 +52,10 @@
         {
             PET_VIEWING = 0
         }
+        public enum DiscountScope
+        {
+            PRODUCT_CATEGORY = 0, // áp cho sản phẩm/danh mục cụ thể
+            ORDER = 1             // áp cho tổng giá trị đơn hàng
+        }
     }
 }

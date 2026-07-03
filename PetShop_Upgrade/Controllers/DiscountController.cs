@@ -17,14 +17,6 @@ namespace PetShop_Upgrade.Controllers
             _discountService = discountService;
         }
 
-        // Client
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<DiscountDTO>>> GetAllDiscounts()
-        {
-            var discounts = await _discountService.GetAllDiscountsAsync();
-            return Ok(discounts);
-        }
-
         // Admin
         [Authorize(Roles = "Admin,Employee")]
         [HttpGet("filter")]
@@ -47,27 +39,6 @@ namespace PetShop_Upgrade.Controllers
         {
             var discount = await _discountService.GetDiscountByCodeAsync(code);
             return Ok(discount);
-        }
-
-        [HttpGet("search")]
-        public async Task<ActionResult<DiscountDTO>> GetDiscountByName([FromQuery] string discountName)
-        {
-            var discount = await _discountService.GetDiscountByNameAsync(discountName);
-            return Ok(discount);
-        }
-
-        [HttpGet("product/{productId}")]
-        public async Task<ActionResult<IEnumerable<DiscountDTO>>> GetDiscountsByProductId([FromRoute] int productId)
-        {
-            var discounts = await _discountService.GetDiscountsByProductIdAsync(productId);
-            return Ok(discounts);
-        }
-
-        [HttpGet("category/{categoryId}")]
-        public async Task<ActionResult<IEnumerable<DiscountDTO>>> GetDiscountsByCategoryId([FromRoute] int categoryId)
-        {
-            var discounts = await _discountService.GetDiscountsByCategoryIdAsync(categoryId);
-            return Ok(discounts);
         }
 
         [Authorize(Roles = "Admin,Employee")]

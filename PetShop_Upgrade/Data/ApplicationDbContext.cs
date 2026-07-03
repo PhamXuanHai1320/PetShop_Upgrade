@@ -270,7 +270,8 @@ namespace PetShop_Upgrade.Data
             // =====================
             modelBuilder.Entity<Discount>()
                 .HasIndex(d => d.Code)
-                .IsUnique();
+                .IsUnique()
+                .HasFilter("[Code] IS NOT NULL");
             // DiscountProduct (junction: Discount <-> Product)
             modelBuilder.Entity<DiscountProduct>()
                 .HasOne(dp => dp.Discount)

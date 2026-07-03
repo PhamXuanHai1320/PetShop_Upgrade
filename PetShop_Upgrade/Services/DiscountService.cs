@@ -3,6 +3,8 @@ using PetShop_Upgrade.DTOS.Discounts;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;
 using PetShop_Upgrade.Services.Interfaces;
+using System.ComponentModel.DataAnnotations;
+using static PetShop_Upgrade.Models.Enum;
 
 namespace PetShop_Upgrade.Services
 {
@@ -17,25 +19,11 @@ namespace PetShop_Upgrade.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<DiscountDTO>> GetAllDiscountsAsync()
-        {
-            var discounts = await _unitOfWork.DiscountRepository.GetAllDiscountsAsync();
-            return _mapper.Map<IEnumerable<DiscountDTO>>(discounts);
-        }
-
         public async Task<DiscountDTO> GetDiscountByIdAsync(int id)
         {
             var discount = await _unitOfWork.DiscountRepository.GetDiscountByIdAsync(id);
             if (discount == null) throw new KeyNotFoundException($"Không tìm thấy discount với Id = {id}");
             return _mapper.Map<DiscountDTO>(discount);
-        }
-
-        public async Task<IEnumerable<DiscountDTO>> GetDiscountByNameAsync(string discountName)
-        {
-            var discounts = await _unitOfWork.DiscountRepository.GetDiscountsByNameAsync(discountName);
-            if (discounts == null || !discounts.Any()) 
-                throw new KeyNotFoundException($"Không tìm thấy discount với tên = {discountName}");
-            return _mapper.Map<IEnumerable<DiscountDTO>>(discounts);
         }
 
         public async Task<DiscountDTO> GetDiscountByCodeAsync(string code)
@@ -51,27 +39,16 @@ namespace PetShop_Upgrade.Services
             return _mapper.Map<IEnumerable<DiscountDTO>>(discounts);
         }
 
-        public async Task<IEnumerable<DiscountDTO>> GetDiscountsByProductIdAsync(int productId)
-        {
-            var discounts = await _unitOfWork.DiscountRepository.GetDiscountsByProductIdAsync(productId);
-            if(discounts == null || !discounts.Any())
-                throw new KeyNotFoundException($"Không tìm thấy discount nào áp dụng cho productId = {productId}"); 
-            return _mapper.Map<IEnumerable<DiscountDTO>>(discounts);
-        }
-
-        public async Task<IEnumerable<DiscountDTO>> GetDiscountsByCategoryIdAsync(int categoryId)
-        {
-            var discounts = await _unitOfWork.DiscountRepository.GetDiscountsByCategoryIdAsync(categoryId);
-            if (discounts == null || !discounts.Any())
-                throw new KeyNotFoundException($"Không tìm thấy discount nào áp dụng cho categoryId = {categoryId}");
-            return _mapper.Map<IEnumerable<DiscountDTO>>(discounts);
-        }
-
         public async Task<CreateDiscountDTO> CreateDiscountAsync(CreateDiscountDTO createDiscountDTO)
         {
+            //Validate scope
+            ValidateDiscountScope(createDiscountDTO);
             // Check duplicate Code
-            var existed = await _unitOfWork.DiscountRepository.GetDiscountsByCodeAsync(createDiscountDTO.Code);
-            if (existed != null) throw new InvalidOperationException($"Mã discount '{createDiscountDTO.Code}' đã tồn tại");
+            if (!string.IsNullOrWhiteSpace(createDiscountDTO.Code))
+            {
+                var existed = await _unitOfWork.DiscountRepository.GetDiscountsByCodeAsync(createDiscountDTO.Code);
+                if (existed != null) throw new InvalidOperationException($"Mã discount '{createDiscountDTO.Code}' đã tồn tại");
+            }
 
             var discount = _mapper.Map<Discount>(createDiscountDTO);
 
@@ -96,7 +73,13 @@ namespace PetShop_Upgrade.Services
             var discount = await _unitOfWork.DiscountRepository.GetDiscountByIdAsync(id);
             if (discount == null) throw new KeyNotFoundException($"Không tìm thấy discount với Id = {id}");
 
-            if (discount.Code != createDiscountDTO.Code)
+            if (discount.Scope != createDiscountDTO.Scope && discount.DiscountUsages.Any())
+                throw new InvalidOperationException(
+                    "Không thể đổi Scope của discount đã có lịch sử sử dụng");
+
+            //Validate scope
+            ValidateDiscountScope(createDiscountDTO);
+            if (discount.Code != createDiscountDTO.Code && !string.IsNullOrWhiteSpace(createDiscountDTO.Code))
             {
                 var existed = await _unitOfWork.DiscountRepository.GetDiscountsByCodeAsync(createDiscountDTO.Code);
                 if (existed != null) throw new InvalidOperationException($"Mã discount '{createDiscountDTO.Code}' đã tồn tại");
@@ -123,13 +106,33 @@ namespace PetShop_Upgrade.Services
             var discount = await _unitOfWork.DiscountRepository.GetDiscountByIdAsync(id);
             if (discount == null) throw new KeyNotFoundException($"Không tìm thấy discount với Id = {id}");
 
-            // Check còn liên kết Product hoặc Category không
-            if (discount.DiscountProducts.Any() || discount.DiscountCategories.Any())
-                throw new InvalidOperationException("Không thể vô hiệu hóa discount đang được liên kết với sản phẩm hoặc danh mục");
-
             discount.IsActive = 0;
             _unitOfWork.DiscountRepository.Update(discount);
             await _unitOfWork.SaveChangesAsync();
+        }
+        private void ValidateDiscountScope(CreateDiscountDTO createDiscountDTO)
+        {
+            switch (createDiscountDTO.Scope)
+            {
+                case DiscountScope.ORDER:
+                    if (string.IsNullOrWhiteSpace(createDiscountDTO.Code))
+                        throw new InvalidOperationException(
+                            "Discount áp dụng cho toàn đơn hàng (Scope = ORDER) bắt buộc phải có Code");
+
+                    if (createDiscountDTO.ProductIds.Any() || createDiscountDTO.CategoryIds.Any())
+                        throw new InvalidOperationException(
+                            "Discount áp dụng cho toàn đơn hàng (Scope = ORDER) không được gắn Product hoặc Category");
+                    break;
+
+                case DiscountScope.PRODUCT_CATEGORY:
+                    if (!createDiscountDTO.ProductIds.Any() && !createDiscountDTO.CategoryIds.Any())
+                        throw new InvalidOperationException(
+                            "Discount áp dụng cho sản phẩm/danh mục (Scope = PRODUCT_CATEGORY) cần ít nhất 1 Product hoặc Category");
+                    break;
+
+                default:
+                    throw new InvalidOperationException($"Scope '{createDiscountDTO.Scope}' không hợp lệ");
+            }
         }
     }
 }

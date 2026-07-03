@@ -16,15 +16,8 @@ namespace PetShop_Upgrade.Repositories
         public async Task<Discount> GetDiscountByIdAsync(int discountId)
         {
             return await _context.Discounts
+                .Include(d => d.DiscountProducts)
                 .FirstOrDefaultAsync(d => d.Id == discountId);
-        }
-
-        public async Task<IEnumerable<Discount>> GetDiscountsByCategoryIdAsync(int categoryId)
-        {
-            return await _context.Discounts
-                .Where(d => d.DiscountCategories.Any(dc => dc.CategoryId == categoryId))
-                .OrderByDescending(d => d.CreateAt)
-                .ToListAsync();
         }
 
         public async Task<Discount> GetDiscountsByCodeAsync(string code)
@@ -60,35 +53,16 @@ namespace PetShop_Upgrade.Repositories
             if (discountFilterDTO.EndDateTo.HasValue)
                 query = query.Where(d => d.EndDate <= discountFilterDTO.EndDateTo);
 
+            if (discountFilterDTO.Scope.HasValue)
+                query = query.Where(d => d.Scope == discountFilterDTO.Scope);
+
+            if (discountFilterDTO.ProductId.HasValue)
+                query = query.Where(d => d.DiscountProducts.Any(dp => dp.ProductId == discountFilterDTO.ProductId));
+
+            if (discountFilterDTO.CategoryId.HasValue)
+                query = query.Where(d => d.DiscountCategories.Any(dc => dc.CategoryId == discountFilterDTO.CategoryId));
+
             return await query
-                .OrderByDescending(d => d.CreateAt)
-                .ToListAsync();
-        }
-
-        public async Task<IEnumerable<Discount>> GetDiscountsByNameAsync(string discountName)
-        {
-            return await _context.Discounts
-                .Where(d => d.DiscountName.Contains(discountName))
-                .OrderByDescending(d => d.CreateAt)
-                .ToListAsync();
-        }
-
-        public async Task<IEnumerable<Discount>> GetDiscountsByProductIdAsync(int productId)
-        {
-            return await _context.Discounts
-                .Where(d => d.DiscountProducts.Any(dp => dp.ProductId == productId))
-                .OrderByDescending(d => d.CreateAt)
-                .ToListAsync();
-        }
-
-        public async Task<IEnumerable<Discount>> GetAllDiscountsAsync()
-        {
-            return await _context.Discounts
-                .Where(
-                    d => d.IsActive == IsActive.ACTIVE &&
-                    d.StartDate <= DateTime.UtcNow &&
-                    (d.EndDate == null || d.EndDate >= DateTime.UtcNow) &&
-                    (d.MaxUsage == null || d.DiscountUsages.Count < d.MaxUsage))
                 .OrderByDescending(d => d.CreateAt)
                 .ToListAsync();
         }

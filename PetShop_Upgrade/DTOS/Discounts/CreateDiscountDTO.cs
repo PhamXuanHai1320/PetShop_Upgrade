@@ -13,6 +13,7 @@ namespace PetShop_Upgrade.DTOS.Discounts
         public int? MaxUsage { get; set; } // Tổng số lần mã này được nhập
         public int? MaxUsagePerUser { get; set; } // Số lần tối đa một người dùng được phép nhập mã này
         public DiscountType DiscountType { get; set; } = DiscountType.FIXED_AMOUNT;// 0: percentage, 1: fixed amount
+        public DiscountScope Scope { get; set; } = DiscountScope.PRODUCT_CATEGORY;
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public IsActive IsActive { get; set; } = IsActive.ACTIVE; // 0: InActive; 1: Active
