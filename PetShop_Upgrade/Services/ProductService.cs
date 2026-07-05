@@ -251,7 +251,7 @@ namespace PetShop_Upgrade.Services
             return productDetailDTO;
         }
 
-        private async Task<double> CalculateFinalPrice(Product product)
+        private async Task<decimal> CalculateFinalPrice(Product product)
         {
             var discounts = await _unitOfWork.DiscountRepository
                 .GetDiscountsByProductIdAndCategoryIdAsync(product.Id, product.CategoryId);
@@ -259,14 +259,14 @@ namespace PetShop_Upgrade.Services
             var eligibleDiscounts = discounts.Where(d =>
                 !d.MinOrderValue.HasValue || d.MinOrderValue <= product.SellingPrice);
 
-            double finalPrice = product.SellingPrice;
+            decimal finalPrice = product.SellingPrice;
 
             foreach (var discount in eligibleDiscounts)
             {
-                double discountedPrice;
+                decimal discountedPrice;
                 if (discount.DiscountType == 0) // Percentage
                 {
-                    var amount = product.SellingPrice * discount.DiscountValue / 100.0;
+                    var amount = product.SellingPrice * discount.DiscountValue / 100;
                     if (discount.MaxDiscountAmount.HasValue)
                         amount = Math.Min(amount, discount.MaxDiscountAmount.Value);
                     discountedPrice = product.SellingPrice - amount;
@@ -342,16 +342,16 @@ namespace PetShop_Upgrade.Services
             return result;
         }
 
-        private double CalculateFinalPriceFromDiscounts(Product product, IEnumerable<Discount> discounts)
+        private decimal CalculateFinalPriceFromDiscounts(Product product, IEnumerable<Discount> discounts)
         {
             var eligible = discounts.Where(d =>
                 !d.MinOrderValue.HasValue || d.MinOrderValue <= product.SellingPrice);
 
-            double finalPrice = product.SellingPrice;
+            decimal finalPrice = product.SellingPrice;
 
             foreach (var discount in eligible)
             {
-                double discountedPrice;
+                decimal discountedPrice;
                 if (discount.DiscountType == 0) // Percentage
                 {
                     var amount = product.SellingPrice * discount.DiscountValue / 100;

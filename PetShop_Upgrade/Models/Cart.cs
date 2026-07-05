@@ -4,7 +4,7 @@
     {
         public Cart() { }
         public int Id { get; set; }
-        public double TotalPrice { get; set; }
+        public decimal TotalPrice { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public int MemberId { get; set; }
         public Member Member { get; set; }

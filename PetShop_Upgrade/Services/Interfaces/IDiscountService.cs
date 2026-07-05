@@ -1,4 +1,5 @@
 ﻿using PetShop_Upgrade.DTOS.Discounts;
+using PetShop_Upgrade.DTOS.Order;
 using PetShop_Upgrade.Models;
 
 namespace PetShop_Upgrade.Services.Interfaces
@@ -11,5 +12,6 @@ namespace PetShop_Upgrade.Services.Interfaces
         Task<CreateDiscountDTO> CreateDiscountAsync(CreateDiscountDTO createDiscountDTO);
         Task<CreateDiscountDTO> UpdateDiscountAsync(int id, CreateDiscountDTO createDiscountDTO);
         Task DeleteDiscountAsync(int id);
+        Task<IEnumerable<DiscountItemsDTO>> GetDiscountsByProductItemsAsync(IEnumerable<OrderItemRequestDTO> OrderItemsDTO);
     }
 }

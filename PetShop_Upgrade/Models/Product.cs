@@ -8,8 +8,8 @@ namespace PetShop_Upgrade.Models
         public int Id { get; set; }
         public string ProductName { get; set; }
         public string? Description { get; set; }
-        public double ImportPrice { get; set; }
-        public double SellingPrice { get; set; }
+        public decimal ImportPrice { get; set; }
+        public decimal SellingPrice { get; set; }
         public ProductType Type { get; set; } // 0: Pet, 1: Toy, 2: Food
         public IsActive IsActive { get; set; } = IsActive.ACTIVE; 
         public int CategoryId { get; set; }

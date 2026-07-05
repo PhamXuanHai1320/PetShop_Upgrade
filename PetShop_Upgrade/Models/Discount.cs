@@ -9,9 +9,9 @@ namespace PetShop_Upgrade.Models
         public string? Code { get; set; }
         public string DiscountName { get; set; }
         public string? Description { get; set; }
-        public double DiscountValue { get; set; } 
-        public double? MinOrderValue { get; set; } 
-        public double? MaxDiscountAmount { get; set; }
+        public decimal DiscountValue { get; set; } 
+        public decimal? MinOrderValue { get; set; } 
+        public decimal? MaxDiscountAmount { get; set; }
         public int? MaxUsage { get; set; }
         public int? MaxUsagePerUser { get; set; }
         public DiscountType DiscountType { get; set; } = DiscountType.FIXED_AMOUNT;// 0: percentage, 1: fixed amount

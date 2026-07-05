@@ -8,8 +8,8 @@ namespace PetShop_Upgrade.DTOS.Products.Admin
         public int? Id { get; set; }
         public string ProductName { get; set; }
         public string? Description { get; set; }
-        public double ImportPrice { get; set; }
-        public double SellingPrice { get; set; }
+        public decimal ImportPrice { get; set; }
+        public decimal SellingPrice { get; set; }
         public ProductType? Type { get; set; }
         public DiscountType IsActive { get; set; } = DiscountType.FIXED_AMOUNT;
         public int CategoryId { get; set; }

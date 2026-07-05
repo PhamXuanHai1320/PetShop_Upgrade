@@ -5,9 +5,9 @@
         public OrderDetail() { }
         public int Id { get; set; }
         public int Quantity { get; set; }
-        public double ImportPrice { get; set; }
-        public double SellingPrice { get; set; }
-        public double TotalPrice { get; set; }
+        public decimal ImportPrice { get; set; }
+        public decimal SellingPrice { get; set; }
+        public decimal TotalPrice { get; set; }
         public int ProductColorId { get; set; }
         public int OrderId { get; set; }
         public Order Order { get; set; }

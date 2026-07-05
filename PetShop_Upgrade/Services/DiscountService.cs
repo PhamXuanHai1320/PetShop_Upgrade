@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using PetShop_Upgrade.DTOS.Discounts;
+using PetShop_Upgrade.DTOS.Order;
+using PetShop_Upgrade.Exceptions;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;
 using PetShop_Upgrade.Services.Interfaces;
@@ -133,6 +135,22 @@ namespace PetShop_Upgrade.Services
                 default:
                     throw new InvalidOperationException($"Scope '{createDiscountDTO.Scope}' không hợp lệ");
             }
+        }
+
+        public async Task<IEnumerable<DiscountItemsDTO>> GetDiscountsByProductItemsAsync(IEnumerable<OrderItemRequestDTO> OrderItemsDTO)
+        {
+            var productIds = OrderItemsDTO.Select(i => i.ProductId).ToList();
+            
+            var products = await _unitOfWork.ProductRepository.GetProductsByIdsAsync(productIds);
+            if (products.Count() != productIds.Distinct().Count())
+                throw new NotFoundException("Một số sản phẩm không tồn tại");
+
+            decimal totalPrice = products.Sum(p => p.SellingPrice * OrderItemsDTO.First(i => i.ProductId == p.Id).Quantity);
+            var currentCategoryIds = products.Select(p => p.CategoryId).Distinct().ToList();
+
+            var discounts = await _unitOfWork.DiscountRepository.GetDiscountsByProductItemsAsync(productIds, currentCategoryIds, totalPrice);
+
+            return _mapper.Map<IEnumerable<DiscountItemsDTO>>(discounts);
         }
     }
 }

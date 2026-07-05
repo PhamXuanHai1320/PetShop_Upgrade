@@ -103,7 +103,7 @@ namespace PetShop_Upgrade.Services
 
             return productItems;
         }
-        private double CalculateFinalPriceFromDiscounts(Product product, IEnumerable<Discount> discounts)
+        private decimal CalculateFinalPriceFromDiscounts(Product product, IEnumerable<Discount> discounts)
         {
             var eligible = discounts.Where(d =>
                 !d.MinOrderValue.HasValue || d.MinOrderValue <= product.SellingPrice);
@@ -111,11 +111,11 @@ namespace PetShop_Upgrade.Services
             if (!eligible.Any())
                 return product.SellingPrice;
 
-            double finalPrice = product.SellingPrice;
+            decimal finalPrice = product.SellingPrice;
 
             foreach (var discount in eligible)
             {
-                double discountedPrice;
+                decimal discountedPrice;
                 if (discount.DiscountType == 0) // Percentage
                 {
                     var amount = product.SellingPrice * discount.DiscountValue / 100;

@@ -6,8 +6,8 @@
         public int Id { get; set; }
         public string ProductName { get; set; }
         public string Description { get; set; }
-        public double ImportPrice { get; set; }
-        public double SellingPrice { get; set; }
+        public decimal ImportPrice { get; set; }
+        public decimal SellingPrice { get; set; }
         public int Version { get; set; }
         public DateTime ChangeAt { get; set; } = DateTime.Now;
         public int ProductId { get; set; }
