@@ -45,6 +45,9 @@ builder.Services.AddScoped<IFoodsDetailService, FoodsDetailService>();
 builder.Services.AddScoped<IToysDetailService, ToysDetailService>();
 builder.Services.AddScoped<IPetVariantService, PetVariantService>();
 builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IAddressService, AddressService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IAddressDataService, AddressDataService>();
 builder.Services.AddScoped<IMinioService, MinioService>();
 
 // Add Repository to the container.
@@ -60,6 +63,10 @@ builder.Services.AddScoped<IFoodDetailRepository, FoodDetailRepository>();
 builder.Services.AddScoped<IToyDetailRepository, ToyDetailRepository>();
 builder.Services.AddScoped<IPetVariantRepository, PetVariantRepository>();
 builder.Services.AddScoped<IProductHistoryRepository, ProductHistoryRepository>();
+builder.Services.AddScoped<IAddressRepository, AddressRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IProductColorRepository, ProductColorRepository>();
+builder.Services.AddScoped<IInventoryLockRepository, InventoryLockRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<ITokenHelper, TokenHelper>();
