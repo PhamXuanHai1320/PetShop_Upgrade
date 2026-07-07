@@ -30,7 +30,7 @@ namespace PetShop_Upgrade.Services
                 Size = createToyDTO.Size
             };
 
-            await _unitOfWork.ToyDetailRepository.Add(toyDetail);
+            _unitOfWork.ToyDetailRepository.Add(toyDetail);
         }
         public async Task UpdateToyDetailAsync(UpdateToyDTO updateToyDTO, int productId)
         {
@@ -41,7 +41,7 @@ namespace PetShop_Upgrade.Services
             }
             MapUpdateToyDetail(updateToyDTO, toyDetail);
 
-            await _unitOfWork.ToyDetailRepository.Update(toyDetail);
+            _unitOfWork.ToyDetailRepository.Update(toyDetail);
         }
         private void MapUpdateToyDetail(UpdateToyDTO updateToyDTO, ToysDetail toysDetail)
         {

@@ -28,7 +28,7 @@ namespace PetShop_Upgrade.Services
                 Size = createPetDTO.Size,
                 Weight = createPetDTO.Weight
             };
-            await _unitOfWork.PetVariantRepository.Add(petVariant);
+            _unitOfWork.PetVariantRepository.Add(petVariant);
         }
 
         public async Task UpdatePetVariantAsync(UpdatePetDTO updatePetDTO, int productId)
@@ -40,7 +40,7 @@ namespace PetShop_Upgrade.Services
             }
             MapUpdatePetVariant(updatePetDTO, petVariant);
 
-            await _unitOfWork.PetVariantRepository.Update(petVariant);
+            _unitOfWork.PetVariantRepository.Update(petVariant);
         }
         private void MapUpdatePetVariant(UpdatePetDTO updatePetDTO, PetVariant petVariant)
         {

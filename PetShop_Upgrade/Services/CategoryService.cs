@@ -22,7 +22,7 @@ namespace PetShop_Upgrade.Services
             }
             var category = new Category();
             MapCategoryDTOToCategory(categoryDTO, category);
-            await _unitOfWork.CategoryRepository.Add(category);
+            _unitOfWork.CategoryRepository.Add(category);
             await _unitOfWork.SaveChangesAsync();
             categoryDTO.Id = category.Id;
             return categoryDTO;
@@ -43,7 +43,7 @@ namespace PetShop_Upgrade.Services
             }
 
             category.IsActive = 0; // Đánh dấu là không hoạt động thay vì xóa hoàn toàn
-            await _unitOfWork.CategoryRepository.Update(category);
+            _unitOfWork.CategoryRepository.Update(category);
             await _unitOfWork.SaveChangesAsync();
         }
 
@@ -92,7 +92,7 @@ namespace PetShop_Upgrade.Services
                 throw new BadRequestException($"Không thể cập nhật category với id: {categoryDTO.Id} vì nó đã bị vô hiệu hóa");
             }
             MapCategoryDTOToCategory(categoryDTO, category);
-            await _unitOfWork.CategoryRepository.Update(category);
+            _unitOfWork.CategoryRepository.Update(category);
             await _unitOfWork.SaveChangesAsync();
             return categoryDTO;
         }

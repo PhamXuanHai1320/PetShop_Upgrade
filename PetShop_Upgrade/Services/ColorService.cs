@@ -26,7 +26,7 @@ namespace PetShop_Upgrade.Services
                 ColorName = colorDTO.ColorName.Trim()
             };
 
-            await _unitOfWork.ColorRepository.Add(color);
+            _unitOfWork.ColorRepository.Add(color);
             await _unitOfWork.SaveChangesAsync();
 
             colorDTO.Id = color.Id;
@@ -47,7 +47,7 @@ namespace PetShop_Upgrade.Services
             }
 
             color.IsActive = 0; // Đánh dấu là không hoạt động thay vì xóa hoàn toàn
-            await _unitOfWork.ColorRepository.Update(color);
+            _unitOfWork.ColorRepository.Update(color);
             await _unitOfWork.SaveChangesAsync();
         }
         public async Task<IEnumerable<ColorDTO>> GetAllColorsAsync()
@@ -131,7 +131,7 @@ namespace PetShop_Upgrade.Services
 
             color.ColorName = colorDTO.ColorName?.Trim();
 
-            await _unitOfWork.ColorRepository.Update(color);
+            _unitOfWork.ColorRepository.Update(color);
             await _unitOfWork.SaveChangesAsync();
 
             colorDTO.Id = color.Id;

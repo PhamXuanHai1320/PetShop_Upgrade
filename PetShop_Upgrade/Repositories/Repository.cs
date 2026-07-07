@@ -15,12 +15,12 @@ namespace PetShop_Upgrade.Repositories
             _context = context;
             _dbSet = _context.Set<T>();
         }
-        public async Task Add(T entity)
+        public void Add(T entity)
         {
-            await _dbSet.AddAsync(entity);
+            _dbSet.Add(entity);
         }
 
-        public async Task Delete(T entity)
+        public void Delete(T entity)
         {
             _dbSet.Remove(entity);
         }
@@ -51,7 +51,7 @@ namespace PetShop_Upgrade.Repositories
                 .AsTask();
         }
 
-        public async Task Update(T entity)
+        public void Update(T entity)
         {
             _dbSet.Attach(entity);
             _context.Entry(entity).State = EntityState.Modified;

@@ -7,9 +7,9 @@ namespace PetShop_Upgrade.Repositories.Interfaces
         Task<T> GetById(int id);
         Task<IEnumerable<T>> GetAll();
         Task<IEnumerable<T>> GetAll(int page, int pageSize);
-        Task Add(T entity);
-        Task Update(T entity);
-        Task Delete(T entity);
+        void Add(T entity);
+        void Update(T entity);
+        void Delete(T entity);
         Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
     }
 }

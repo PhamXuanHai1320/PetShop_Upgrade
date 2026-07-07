@@ -32,7 +32,7 @@ namespace PetShop_Upgrade.Services
                 AgeGroup = createFoodDTO.AgeGroup
             };
 
-            await _unitOfWork.FoodDetailRepository.Add(foodsDetail);
+            _unitOfWork.FoodDetailRepository.Add(foodsDetail);
         }
         public async Task UpdateFoodDetailAsync(UpdateFoodDTO updateFoodDTO, int productId)
         {
@@ -43,7 +43,7 @@ namespace PetShop_Upgrade.Services
                 }
                 MapUpdateFoodDTO(updateFoodDTO, foodDetail);
 
-                await _unitOfWork.FoodDetailRepository.Update(foodDetail);
+                _unitOfWork.FoodDetailRepository.Update(foodDetail);
         }
         private void MapUpdateFoodDTO(UpdateFoodDTO updateFoodDTO, FoodsDetail foodsDetail)
         {

@@ -65,7 +65,7 @@ namespace PetShop_Upgrade.Services
                 ExpiresAt = DateTime.UtcNow.AddDays(_expiresAt),
                 IsRevoked = false
             };
-            await _unitOfWork.RefreshTokenRepository.Add(refreshTokenEntity);
+            _unitOfWork.RefreshTokenRepository.Add(refreshTokenEntity);
             await _unitOfWork.SaveChangesAsync();
 
             return new AuthResponseDTO
@@ -125,7 +125,7 @@ namespace PetShop_Upgrade.Services
                 MemberId = int.Parse(memberId),
                 ExpiresAt = DateTime.UtcNow.AddDays(_expiresAt)
             };
-            await _unitOfWork.RefreshTokenRepository.Add(newRefreshTokenEntity);
+            _unitOfWork.RefreshTokenRepository.Add(newRefreshTokenEntity);
             await _unitOfWork.SaveChangesAsync();
             return new TokenResponseDTO
             {
@@ -175,7 +175,7 @@ namespace PetShop_Upgrade.Services
                         MemberId = newMember.Id,
                         CreatedAt = DateTime.UtcNow
                     };
-                    await _unitOfWork.CartRepository.Add(cart);
+                    _unitOfWork.CartRepository.Add(cart);
                 }
                 // Tạo token ngay sau khi đăng ký thành công
                 var memberDTO = await MapToMemberDto(newMember);
@@ -188,7 +188,7 @@ namespace PetShop_Upgrade.Services
                     ExpiresAt = DateTime.UtcNow.AddDays(_expiresAt),
                     IsRevoked = false
                 };
-                await _unitOfWork.RefreshTokenRepository.Add(refreshTokenEntity);
+                _unitOfWork.RefreshTokenRepository.Add(refreshTokenEntity);
                 await _unitOfWork.SaveChangesAsync();
 
                 await transaction.CommitAsync();

@@ -64,7 +64,7 @@ namespace PetShop_Upgrade.Services
                 .Select(id => new DiscountCategory { CategoryId = id })
                 .ToList();
 
-            await _unitOfWork.DiscountRepository.Add(discount);
+            _unitOfWork.DiscountRepository.Add(discount);
             await _unitOfWork.SaveChangesAsync();
 
             return createDiscountDTO;

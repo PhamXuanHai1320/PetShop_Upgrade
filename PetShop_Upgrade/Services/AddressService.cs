@@ -34,7 +34,7 @@ namespace PetShop_Upgrade.Services
                 PhoneNumber = createAddressDTO.PhoneNumber
             };
 
-            await _unitOfWork.AddressRepository.Add(address);
+            _unitOfWork.AddressRepository.Add(address);
             await _unitOfWork.SaveChangesAsync();
 
             return MapToResponseDTO(address);
@@ -58,7 +58,7 @@ namespace PetShop_Upgrade.Services
             address.AddressDetail = updateAddressDTO.AddressDetail;
             address.PhoneNumber = updateAddressDTO.PhoneNumber;
 
-            await _unitOfWork.AddressRepository.Update(address);
+            _unitOfWork.AddressRepository.Update(address);
             await _unitOfWork.SaveChangesAsync();
 
             return MapToResponseDTO(address);
@@ -73,7 +73,7 @@ namespace PetShop_Upgrade.Services
 
             if (address.MemberId != memberId)
                 throw new UnauthorizedAccessException("Bạn không có quyền chỉnh sửa địa chỉ này.");
-            await _unitOfWork.AddressRepository.Delete(address);
+            _unitOfWork.AddressRepository.Delete(address);
             await _unitOfWork.SaveChangesAsync();
         }
 
