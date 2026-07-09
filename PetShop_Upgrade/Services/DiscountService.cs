@@ -137,7 +137,7 @@ namespace PetShop_Upgrade.Services
             }
         }
 
-        public async Task<IEnumerable<DiscountItemsDTO>> GetDiscountsByProductItemsAsync(IEnumerable<OrderItemRequestDTO> OrderItemsDTO)
+        public async Task<IEnumerable<DiscountItemsDTO>> GetDiscountsByProductItemsAsync(IEnumerable<CreateOrderItemRequestDTO> OrderItemsDTO)
         {
             var productIds = OrderItemsDTO.Select(i => i.ProductId).ToList();
             

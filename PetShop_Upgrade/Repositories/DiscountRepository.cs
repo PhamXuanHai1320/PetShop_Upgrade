@@ -17,6 +17,7 @@ namespace PetShop_Upgrade.Repositories
         {
             return await _context.Discounts
                 .Include(d => d.DiscountProducts)
+                .Include(d => d.DiscountCategories)
                 .FirstOrDefaultAsync(d => d.Id == discountId);
         }
 
@@ -91,6 +92,24 @@ namespace PetShop_Upgrade.Repositories
                     d.StartDate <= DateTime.UtcNow &&
                     (d.EndDate == null || d.EndDate >= DateTime.UtcNow) &&
                     (d.MaxUsage == null || d.DiscountUsages.Count < d.MaxUsage))
+                .Include(d => d.DiscountProducts)
+                .Include(d => d.DiscountCategories)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Discount>> GetDiscountsByProductItemsAsync(IEnumerable<int> productIds, IEnumerable<int> categoryIds, decimal totalPrice)
+        {
+            return await _context.Discounts
+                .Where(d =>
+                    (d.Scope == DiscountScope.ORDER || 
+                        (d.Scope == DiscountScope.PRODUCT_CATEGORY && 
+                            (d.DiscountProducts.Any(dp => productIds.Contains(dp.ProductId)) ||
+                            d.DiscountCategories.Any(dc => categoryIds.Contains(dc.CategoryId))))) &&
+                    d.IsActive == IsActive.ACTIVE &&
+                    d.StartDate <= DateTime.UtcNow &&
+                    (d.EndDate == null || d.EndDate >= DateTime.UtcNow) &&
+                    (d.MaxUsage == null || d.DiscountUsages.Count < d.MaxUsage) &&
+                    (d.MinOrderValue == null || d.MinOrderValue <= totalPrice))
                 .Include(d => d.DiscountProducts)
                 .Include(d => d.DiscountCategories)
                 .ToListAsync();

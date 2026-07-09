@@ -12,6 +12,6 @@ namespace PetShop_Upgrade.Services.Interfaces
         Task<CreateDiscountDTO> CreateDiscountAsync(CreateDiscountDTO createDiscountDTO);
         Task<CreateDiscountDTO> UpdateDiscountAsync(int id, CreateDiscountDTO createDiscountDTO);
         Task DeleteDiscountAsync(int id);
-        Task<IEnumerable<DiscountItemsDTO>> GetDiscountsByProductItemsAsync(IEnumerable<OrderItemRequestDTO> OrderItemsDTO);
+        Task<IEnumerable<DiscountItemsDTO>> GetDiscountsByProductItemsAsync(IEnumerable<CreateOrderItemRequestDTO> OrderItemsDTO);
     }
 }

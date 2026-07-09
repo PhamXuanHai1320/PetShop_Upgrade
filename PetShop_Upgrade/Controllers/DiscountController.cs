@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Claims;
 using PetShop_Upgrade.DTOS.Discounts;
+using PetShop_Upgrade.DTOS.Order;
 using PetShop_Upgrade.Services.Interfaces;
 
 namespace PetShop_Upgrade.Controllers
@@ -67,6 +68,13 @@ namespace PetShop_Upgrade.Controllers
         {
             await _discountService.DeleteDiscountAsync(id);
             return NoContent();
+        }
+        [Authorize]
+        [HttpPost("items")]
+        public async Task<ActionResult<IEnumerable<DiscountItemsDTO>>> GetDiscountsByProductItems([FromBody] IEnumerable<CreateOrderItemRequestDTO> orderItems)
+        {
+            var discounts = await _discountService.GetDiscountsByProductItemsAsync(orderItems);
+            return Ok(discounts);
         }
     }
 }

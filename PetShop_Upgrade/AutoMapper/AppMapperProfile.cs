@@ -26,6 +26,7 @@ namespace PetShop_Upgrade.AutoMapper
             CreateMap<Discount, DiscountDTO>();
             CreateMap<DiscountDTO, Discount>();
             CreateMap<CreateDiscountDTO, Discount>();
+            CreateMap<Discount, DiscountItemsDTO>();
             // --- Cấu hình cho Module Product ---
             CreateMap<Product, ProductResponseRequestDTO>();
             CreateMap<Product, AdminProductItemDTO>()
