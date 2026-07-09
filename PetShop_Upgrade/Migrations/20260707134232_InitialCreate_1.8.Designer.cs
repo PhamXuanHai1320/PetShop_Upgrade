@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PetShop_Upgrade.Data;
 
@@ -11,9 +12,11 @@ using PetShop_Upgrade.Data;
 namespace PetShop_Upgrade.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260707134232_InitialCreate_1.8")]
+    partial class InitialCreate_18
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -645,6 +648,9 @@ namespace PetShop_Upgrade.Migrations
                     b.Property<int?>("AddressId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("AddressId1")
+                        .HasColumnType("int");
+
                     b.Property<string>("CancelReason")
                         .HasColumnType("nvarchar(max)");
 
@@ -703,6 +709,8 @@ namespace PetShop_Upgrade.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AddressId");
+
+                    b.HasIndex("AddressId1");
 
                     b.HasIndex("MemberId");
 
@@ -785,6 +793,11 @@ namespace PetShop_Upgrade.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrderCode")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("OrderId")
@@ -799,8 +812,8 @@ namespace PetShop_Upgrade.Migrations
                     b.Property<int>("PaymentStatus")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("TotalPrice")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("TotalPrice")
+                        .HasColumnType("float");
 
                     b.Property<string>("TransactionId")
                         .HasColumnType("nvarchar(max)");
@@ -1406,18 +1419,20 @@ namespace PetShop_Upgrade.Migrations
 
             modelBuilder.Entity("PetShop_Upgrade.Models.Order", b =>
                 {
-                    b.HasOne("PetShop_Upgrade.Models.Address", "Address")
-                        .WithMany("Orders")
+                    b.HasOne("PetShop_Upgrade.Models.Address", null)
+                        .WithMany()
                         .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("PetShop_Upgrade.Models.Address", null)
+                        .WithMany("Orders")
+                        .HasForeignKey("AddressId1");
 
                     b.HasOne("PetShop_Upgrade.Models.Member", "Member")
                         .WithMany("Orders")
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Address");
 
                     b.Navigation("Member");
                 });

@@ -71,6 +71,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<ITokenHelper, TokenHelper>();
 builder.Services.AddScoped<IProductOrchestrator, ProductOrchestrator>();
+builder.Services.AddScoped<IOrderOrchestration, OrderOrchestration>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

@@ -9,5 +9,6 @@ namespace PetShop_Upgrade.Repositories.Interfaces
         Task<Product> GetProductByIdAsync(int productId);
         Task<Product> GetProductDetailsByIdAsync(int productId);
         Task<IEnumerable<Product>> GetProductByFilterAsync(ProductFilterDTO productFilter, int page, int pageSize);
+        Task<IEnumerable<Product>> GetProductsByIdsAsync(IEnumerable<int> productIds);
     }
 }

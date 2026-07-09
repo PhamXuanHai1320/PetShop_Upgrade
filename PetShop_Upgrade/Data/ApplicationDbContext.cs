@@ -114,7 +114,7 @@ namespace PetShop_Upgrade.Data
                 .HasOne(o => o.Address)
                 .WithMany(a => a.Orders)
                 .HasForeignKey(o => o.AddressId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.SetNull);
 
             // Order -> OrderDetail (1-N)
             modelBuilder.Entity<OrderDetail>()
@@ -147,7 +147,7 @@ namespace PetShop_Upgrade.Data
             // PetViewingAppointment -> Appointment (1-1)
             modelBuilder.Entity<PetViewingAppointment>()
                 .HasKey(pva => pva.AppointmentId);
-            modelBuilder.Entity<PetViewingAppointment>   ()
+            modelBuilder.Entity<PetViewingAppointment>()
                 .HasOne(pva => pva.Appointment)
                 .WithOne()
                 .HasForeignKey<PetViewingAppointment>(pva => pva.AppointmentId)
@@ -237,9 +237,6 @@ namespace PetShop_Upgrade.Data
                 .WithOne(p => p.PetVariant)
                 .HasForeignKey<PetVariant>(pv => pv.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<PetVariant>()
-                .HasKey(pv => pv.ProductId);
 
             // PetHealthRecord -> Product (N-1)
             modelBuilder.Entity<PetHealthRecord>()

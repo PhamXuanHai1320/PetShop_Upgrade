@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using PetShop_Upgrade.Data;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;
@@ -23,7 +24,14 @@ namespace PetShop_Upgrade.Repositories
             ProductHistoryRepository = new ProductHistoryRepository(_context);
             DiscountRepository = new DiscountRepository(_context);
             CartItemRepository = new Repository<CartItem>(context);
-            ProductColorRepository = new Repository<ProductColor>(context);
+            ProductColorRepository = new ProductColorRepository(context);
+            InventoryLockRepository = new InventoryLockRepository(context);
+            OrderDetailRepository = new Repository<OrderDetail>(context);
+            OrderRepository = new OrderRepository(context);
+            AddressRepository = new AddressRepository(context);
+            DiscountUsageRepository = new Repository<DiscountUsage>(context);
+            AppointmentRepository = new AppointmentRepository(context);
+            PetViewingAppointmentRepository = new Repository<PetViewingAppointment>(context);
         }
 
         public IMemberRepository MemberRepository { get; private set; }
@@ -46,7 +54,21 @@ namespace PetShop_Upgrade.Repositories
 
         public IToyDetailRepository ToyDetailRepository { get; private set; }
 
-        public IRepository<ProductColor> ProductColorRepository { get; private set; }
+        public IProductColorRepository ProductColorRepository { get; private set; }
+
+        public Interfaces.IInventoryLockRepository InventoryLockRepository { get; private set; }
+
+        public IRepository<OrderDetail> OrderDetailRepository { get; private set; }
+
+        public IOrderRepository OrderRepository { get; private set; }
+
+        public IAddressRepository AddressRepository { get; private set; }
+
+        public IRepository<DiscountUsage> DiscountUsageRepository { get; private set; }
+
+        public IAppointmentRepository AppointmentRepository { get; private set; }
+
+        public IRepository<PetViewingAppointment> PetViewingAppointmentRepository { get; private set; }
 
         public async Task SaveChangesAsync()
         {
@@ -54,7 +76,7 @@ namespace PetShop_Upgrade.Repositories
         }
         public async Task<IDbContextTransaction> BeginTransactionAsync()
         {
-            return await _context.Database.BeginTransactionAsync();
+            return await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadCommitted);
         }
     }
 }

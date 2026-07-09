@@ -36,7 +36,8 @@
         public enum InventoryLockStatus
         {
             LOCKED = 0,
-            REBASE = 1
+            REBASE = 1,
+            CONFIRMED = 2
         }
         public enum IsMain
         {

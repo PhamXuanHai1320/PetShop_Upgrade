@@ -18,6 +18,7 @@ namespace PetShop_Upgrade.Repositories
         {
             return await _context.Products
                 .Include(p => p.ProductImages)
+                .Include(p => p.Category)
                 .Include(p => p.ProductColors)
                     .ThenInclude(pc => pc.Color)
                 .FirstOrDefaultAsync(p => p.Id == productId && p.IsActive == IsActive.ACTIVE);
@@ -80,6 +81,13 @@ namespace PetShop_Upgrade.Repositories
                 .Include(p => p.ProductImages)
                 .Include(p => p.Category)
                 .Include(p => p.Ratings);
+        }
+
+        public async Task<IEnumerable<Product>> GetProductsByIdsAsync(IEnumerable<int> productIds)
+        {
+            return await _context.Products
+                .Where(p => productIds.Contains(p.Id) && p.IsActive == IsActive.ACTIVE)
+                .ToListAsync();
         }
     }
 }
