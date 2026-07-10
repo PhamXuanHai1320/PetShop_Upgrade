@@ -10,9 +10,11 @@ namespace PetShop_Upgrade.Orchestrators
     public class OrderOrchestration : IOrderOrchestration
     {
         private readonly IOrderService _orderService;
-        public OrderOrchestration(IOrderService orderService)
+        private readonly IVNPayService _vnPayService;
+        public OrderOrchestration(IOrderService orderService, IVNPayService vnPayService)
         {
             _orderService = orderService;
+            _vnPayService = vnPayService;
         }
         public async Task<CreateOrderResponseDTO> CreateOrderFromCartAsync(int memberId, CreateOrderFromCartRequestDTO createOrderDTO, string ipAddress)
         {
@@ -25,6 +27,17 @@ namespace PetShop_Upgrade.Orchestrators
             {
                 case PaymentMethod.CASH:
                     return response;
+                case PaymentMethod.VNPAY:
+                {
+
+                    var paymentUrl = _vnPayService.CreatePaymentUrl(
+                        orderId: orderResultDTO.OrderId,
+                        amount: orderResultDTO.FinalPrice,
+                        orderInfo: $"Thanh toan don hang {orderResultDTO.OrderId}",
+                        ipAddress: ipAddress);
+                    response.PaymentUrl = paymentUrl;
+                    return response;
+                }
                 default:
                     throw new NotSupportedException($"Payment method {createOrderDTO.PaymentMethod} is not supported.");
             }
@@ -41,6 +54,17 @@ namespace PetShop_Upgrade.Orchestrators
             {
                 case PaymentMethod.CASH:
                     return response;
+                case PaymentMethod.VNPAY:
+                {
+
+                    var paymentUrl = _vnPayService.CreatePaymentUrl(
+                        orderId: orderResultDTO.OrderId,
+                        amount: orderResultDTO.FinalPrice,
+                        orderInfo: $"Thanh toan don hang {orderResultDTO.OrderId}",
+                        ipAddress: ipAddress);
+                    response.PaymentUrl = paymentUrl;
+                    return response;
+                }
                 default:
                     throw new NotSupportedException($"Payment method {createOrderDTO.PaymentMethod} is not supported.");
             }

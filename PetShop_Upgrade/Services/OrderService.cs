@@ -417,6 +417,12 @@ namespace PetShop_Upgrade.Services
             await CancelOrderInternalAsync(orderId, dto.CancelReason, cancelledByAdminId: null, requestingMemberId: memberId);
             _logger.LogInformation("OrderId = {OrderId} đã được MemberId = {MemberId} tự hủy", orderId, memberId);
         }
+
+        public async Task CancelOrderBySystemAsync(int orderId, string CancelReason)
+        {
+            await CancelOrderInternalAsync(orderId, CancelReason, cancelledByAdminId: null, requestingMemberId: null);
+            _logger.LogInformation(CancelReason);
+        }
         private async Task CancelOrderInternalAsync(
             int orderId, string cancelReason, int? cancelledByAdminId, int? requestingMemberId)
         {
@@ -426,9 +432,19 @@ namespace PetShop_Upgrade.Services
             using var transaction = await _unitOfWork.BeginTransactionAsync();
             try
             {
-                var order = await _unitOfWork.OrderRepository.GetOrderWithDetailsByIdAsync(orderId);
+                var order = await _unitOfWork.OrderRepository.GetOrderForUpdateAsync(orderId);
                 if (order == null)
                     throw new NotFoundException($"Không tìm thấy đơn hàng (OrderId = {orderId})");
+
+                if (order.status == OrderStatus.CANCELLED)
+                {
+                    if (!requestingMemberId.HasValue && !cancelledByAdminId.HasValue)
+                    {
+                        await transaction.CommitAsync();
+                        return;
+                    }
+                    throw new BadRequestException("Đơn hàng đã được hủy trước đó");
+                }
 
                 if (requestingMemberId.HasValue && order.MemberId != requestingMemberId.Value)
                     throw new ForbiddenException("Bạn không có quyền hủy đơn hàng này");
@@ -446,7 +462,7 @@ namespace PetShop_Upgrade.Services
                     if (!canMemberCancel)
                         throw new BadRequestException("Đơn hàng hiện không thể hủy");
                 }
-                else
+                else if(cancelledByAdminId.HasValue)
                 {
                     // Admin: không cho hủy khi đã DELIVERED hoặc CANCELLED
                     if (order.status is OrderStatus.DELIVERED or OrderStatus.CANCELLED or OrderStatus.SHIPPED)
@@ -508,13 +524,103 @@ namespace PetShop_Upgrade.Services
             if (!allowedNextStatuses.Contains(updateOrderDTO.NewStatus))
                 throw new BadRequestException($"Không thể chuyển trạng thái từ {order.status} sang {updateOrderDTO.NewStatus}");
 
+            if (updateOrderDTO.NewStatus == OrderStatus.CONFIRMED &&
+                order.Payment?.PaymentMethod == PaymentMethod.VNPAY &&
+                order.Payment.PaymentStatus != PaymentStatus.PAID)
+                throw new BadRequestException("Không thể xác nhận đơn VNPay khi thanh toán chưa thành công");
+
             order.status = updateOrderDTO.NewStatus;
+            if (updateOrderDTO.NewStatus == OrderStatus.DELIVERED &&
+                order.Payment?.PaymentMethod == PaymentMethod.CASH &&
+                order.Payment.PaymentStatus == PaymentStatus.PENDING)
+            {
+                order.Payment.PaymentStatus = PaymentStatus.PAID;
+                order.Payment.PaidAt = DateTime.UtcNow;
+            }
             _unitOfWork.OrderRepository.Update(order);
             await _unitOfWork.SaveChangesAsync();
 
             _logger.LogInformation(
                 "AdminId = {AdminId} đã đổi trạng thái OrderId = {OrderId} sang {NewStatus}",
                 adminId, orderId, updateOrderDTO.NewStatus);
+        }
+        public async Task ConfirmOrderPaymentAsync(int orderId)
+        {
+            var order = await _unitOfWork.OrderRepository.GetOrderWithDetailsByIdAsync(orderId);
+            if (order == null || order.status != OrderStatus.PENDING)
+                return;
+
+            order.status = OrderStatus.CONFIRMED;
+            foreach (var invLock in order.InventoryLocks.Where(l => l.Status == InventoryLockStatus.LOCKED))
+            {
+                invLock.Status = InventoryLockStatus.CONFIRMED;
+            }
+
+            _unitOfWork.OrderRepository.Update(order);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task ExpirePendingVNPayOrdersAsync(CancellationToken cancellationToken = default)
+        {
+            var orderIds = await _unitOfWork.InventoryLockRepository
+                .GetExpiredPendingOrderIdsAsync(DateTime.UtcNow);
+
+            foreach (var orderId in orderIds)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                using var transaction = await _unitOfWork.BeginTransactionAsync();
+                try
+                {
+                    var order = await _unitOfWork.OrderRepository.GetOrderForUpdateAsync(orderId);
+                    if (order?.Payment == null ||
+                        order.status != OrderStatus.PENDING ||
+                        order.Payment.PaymentMethod != PaymentMethod.VNPAY ||
+                        order.Payment.PaymentStatus != PaymentStatus.PENDING)
+                    {
+                        await transaction.CommitAsync();
+                        continue;
+                    }
+
+                    var expiredLocks = order.InventoryLocks
+                        .Where(x => x.Status == InventoryLockStatus.LOCKED)
+                        .ToList();
+                    if (expiredLocks.Count == 0)
+                    {
+                        await transaction.CommitAsync();
+                        continue;
+                    }
+
+                    foreach (var group in expiredLocks.GroupBy(x => x.ProductColorId).OrderBy(x => x.Key))
+                    {
+                        var productColor = await _unitOfWork.ProductColorRepository.GetForUpdateAsync(group.Key);
+                        if (productColor != null)
+                        {
+                            productColor.Quantity += group.Sum(x => x.Quantity);
+                            _unitOfWork.ProductColorRepository.Update(productColor);
+                        }
+                        foreach (var inventoryLock in group)
+                            inventoryLock.Status = InventoryLockStatus.REBASE;
+                    }
+
+                    order.Payment.PaymentStatus = PaymentStatus.FAILED;
+                    order.Payment.CancelledAt = DateTime.UtcNow;
+                    order.Payment.CancellationReason = "Hết thời gian thanh toán VNPay";
+                    order.status = OrderStatus.CANCELLED;
+                    order.CancelReason = "Hết thời gian thanh toán VNPay";
+                    order.CancelledAt = DateTime.UtcNow;
+                    foreach (var usage in order.DiscountUsages.ToList())
+                        _unitOfWork.DiscountUsageRepository.Delete(usage);
+
+                    _unitOfWork.OrderRepository.Update(order);
+                    await _unitOfWork.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                }
+                catch
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            }
         }
     }
 }

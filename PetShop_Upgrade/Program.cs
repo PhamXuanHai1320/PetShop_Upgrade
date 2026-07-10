@@ -49,6 +49,9 @@ builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IAddressDataService, AddressDataService>();
 builder.Services.AddScoped<IMinioService, MinioService>();
+builder.Services.AddScoped<IVNPayService, VNPayService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddHostedService<InventoryLockExpirationWorker>();
 
 // Add Repository to the container.
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
@@ -70,8 +73,10 @@ builder.Services.AddScoped<IInventoryLockRepository, InventoryLockRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<ITokenHelper, TokenHelper>();
+builder.Services.AddScoped<IVNPayHelper, VNPayHelper>();
 builder.Services.AddScoped<IProductOrchestrator, ProductOrchestrator>();
 builder.Services.AddScoped<IOrderOrchestration, OrderOrchestration>();
+builder.Services.AddScoped<IPaymentWebhookOrchestrator, PaymentWebhookOrchestrator>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

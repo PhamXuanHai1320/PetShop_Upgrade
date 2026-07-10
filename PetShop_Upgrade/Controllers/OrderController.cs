@@ -33,7 +33,20 @@ namespace PetShop_Upgrade.Controllers
         [HttpPost("from-cart")]
         public async Task<IActionResult> CreateOrderFromCart([FromBody] CreateOrderFromCartRequestDTO createOrderRequestDTO)
         {
-            var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
+            var remoteIp = HttpContext.Connection.RemoteIpAddress;
+            string ip = "127.0.0.1";
+
+            if (remoteIp != null)
+            {
+                if (remoteIp.IsIPv4MappedToIPv6 || remoteIp.ToString() == "::1")
+                {
+                    ip = "127.0.0.1";
+                }
+                else
+                {
+                    ip = remoteIp.MapToIPv4().ToString();
+                }
+            }
             var orderId = await _orderOrchestration.CreateOrderFromCartAsync(memberId, createOrderRequestDTO, ip);
             return Ok(orderId);
         }
@@ -41,7 +54,20 @@ namespace PetShop_Upgrade.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderItemRequestDTO createOrderRequestDTO)
         {
-            var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
+            var remoteIp = HttpContext.Connection.RemoteIpAddress;
+            string ip = "127.0.0.1";
+
+            if (remoteIp != null)
+            {
+                if (remoteIp.IsIPv4MappedToIPv6 || remoteIp.ToString() == "::1")
+                {
+                    ip = "127.0.0.1";
+                }
+                else
+                {
+                    ip = remoteIp.MapToIPv4().ToString();
+                }
+            }
             var orderId = await _orderOrchestration.CreateOrderAsync(memberId, createOrderRequestDTO, ip);
             return Ok(orderId);
         }

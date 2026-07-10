@@ -10,5 +10,8 @@ namespace PetShop_Upgrade.Services.Interfaces
         Task CancelOrderByAdminAsync(int orderId, int adminId, CancelOrderRequestDTO dto);
         Task CancelOrderByMemberAsync(int orderId, int memberId, CancelOrderRequestDTO dto);
         Task UpdateOrderStatusAsync(int orderId, int adminId, UpdateOrderStatusRequestDTO updateOrderDTO);
+        Task ConfirmOrderPaymentAsync(int orderId);
+        Task CancelOrderBySystemAsync(int orderId, string CancelReason);
+        Task ExpirePendingVNPayOrdersAsync(CancellationToken cancellationToken = default);
     }
 }

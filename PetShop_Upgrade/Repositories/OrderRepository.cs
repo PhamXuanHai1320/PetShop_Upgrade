@@ -19,5 +19,15 @@ namespace PetShop_Upgrade.Repositories
                 .Include(o => o.Payment)
                 .FirstOrDefaultAsync(o => o.Id == orderId);
         }
+        public async Task<Order?> GetOrderForUpdateAsync(int orderId)
+        {
+            return await _context.Orders
+                .FromSqlInterpolated($@"SELECT * FROM Orders WITH (UPDLOCK, ROWLOCK) WHERE Id = {orderId}")
+                .Include(o => o.OrderDetails)
+                .Include(o => o.InventoryLocks)
+                .Include(o => o.DiscountUsages)
+                .Include(o => o.Payment)
+                .FirstOrDefaultAsync();
+        }
     }
 }
