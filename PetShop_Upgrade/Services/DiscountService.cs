@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using PetShop_Upgrade.DTOS.Discounts;
-using PetShop_Upgrade.DTOS.Order;
+using PetShop_Upgrade.DTOS.Order.Client;
 using PetShop_Upgrade.Exceptions;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;

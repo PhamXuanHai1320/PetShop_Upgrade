@@ -1,4 +1,4 @@
-﻿using PetShop_Upgrade.DTOS.Order;
+﻿using PetShop_Upgrade.DTOS.Order.Client;
 
 namespace PetShop_Upgrade.Orchestrators.Interfaces
 {

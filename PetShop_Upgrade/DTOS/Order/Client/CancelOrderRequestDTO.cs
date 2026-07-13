@@ -1,4 +1,4 @@
-﻿namespace PetShop_Upgrade.DTOS.Order
+﻿namespace PetShop_Upgrade.DTOS.Order.Client
 {
     public class CancelOrderRequestDTO
     {

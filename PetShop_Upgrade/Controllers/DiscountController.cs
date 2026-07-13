@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Claims;
 using PetShop_Upgrade.DTOS.Discounts;
-using PetShop_Upgrade.DTOS.Order;
+using PetShop_Upgrade.DTOS.Order.Client;
 using PetShop_Upgrade.Services.Interfaces;
 
 namespace PetShop_Upgrade.Controllers

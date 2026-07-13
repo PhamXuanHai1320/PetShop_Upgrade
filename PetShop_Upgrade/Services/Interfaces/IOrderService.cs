@@ -1,4 +1,5 @@
-﻿using PetShop_Upgrade.DTOS.Order;
+﻿using PetShop_Upgrade.DTOS.Order.Admin;
+using PetShop_Upgrade.DTOS.Order.Client;
 
 namespace PetShop_Upgrade.Services.Interfaces
 {

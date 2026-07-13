@@ -1,4 +1,4 @@
-﻿using PetShop_Upgrade.DTOS.Order;
+﻿using PetShop_Upgrade.DTOS.Order.Client;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Orchestrators.Interfaces;
 using PetShop_Upgrade.Services;

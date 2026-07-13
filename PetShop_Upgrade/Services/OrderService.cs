@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Minio.DataModel;
-using PetShop_Upgrade.DTOS.Order;
 using PetShop_Upgrade.Exceptions;
 using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;
 using PetShop_Upgrade.Services.Interfaces;
 using static PetShop_Upgrade.Models.Enum;
 using System.Text.Json;
+using PetShop_Upgrade.DTOS.Order.Client;
+using PetShop_Upgrade.DTOS.Order.Admin;
 
 namespace PetShop_Upgrade.Services
 {
