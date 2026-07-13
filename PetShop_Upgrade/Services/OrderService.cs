@@ -6,6 +6,7 @@ using PetShop_Upgrade.Models;
 using PetShop_Upgrade.Repositories.Interfaces;
 using PetShop_Upgrade.Services.Interfaces;
 using static PetShop_Upgrade.Models.Enum;
+using System.Text.Json;
 
 namespace PetShop_Upgrade.Services
 {
@@ -610,6 +611,25 @@ namespace PetShop_Upgrade.Services
                     order.CancelledAt = DateTime.UtcNow;
                     foreach (var usage in order.DiscountUsages.ToList())
                         _unitOfWork.DiscountUsageRepository.Delete(usage);
+
+                    _unitOfWork.OutboxMessageRepository.Add(new OutboxMessage
+                    {
+                        EventType = "payment.expired",
+                        Payload = JsonSerializer.Serialize(new
+                        {
+                            EventId = Guid.NewGuid(),
+                            EventType = "payment.expired",
+                            Data = new
+                            {
+                                OrderId = order.Id,
+                                PaymentId = order.Payment.Id,
+                                order.MemberId,
+                                Amount = order.Payment.TotalPrice,
+                                PaymentMethod = order.Payment.PaymentMethod.ToString(),
+                                OccurredAt = DateTime.UtcNow
+                            }
+                        })
+                    });
 
                     _unitOfWork.OrderRepository.Update(order);
                     await _unitOfWork.SaveChangesAsync();

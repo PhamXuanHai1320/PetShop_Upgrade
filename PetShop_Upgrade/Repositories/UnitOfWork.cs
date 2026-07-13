@@ -33,6 +33,7 @@ namespace PetShop_Upgrade.Repositories
             AppointmentRepository = new AppointmentRepository(context);
             PetViewingAppointmentRepository = new Repository<PetViewingAppointment>(context);
             PaymentWebhookLogRepository = new Repository<PaymentWebhookLog>(context);
+            OutboxMessageRepository = new Repository<OutboxMessage>(context);
         }
 
         public IMemberRepository MemberRepository { get; private set; }
@@ -72,6 +73,7 @@ namespace PetShop_Upgrade.Repositories
         public IRepository<PetViewingAppointment> PetViewingAppointmentRepository { get; private set; }
 
         public IRepository<PaymentWebhookLog> PaymentWebhookLogRepository { get; private set; }
+        public IRepository<OutboxMessage> OutboxMessageRepository { get; private set; }
 
         public async Task SaveChangesAsync()
         {

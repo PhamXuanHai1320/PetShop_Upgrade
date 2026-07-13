@@ -29,6 +29,7 @@ namespace PetShop_Upgrade.Repositories.Interfaces
         IAppointmentRepository AppointmentRepository { get; }
         IRepository<PetViewingAppointment> PetViewingAppointmentRepository { get; }
         IRepository<PaymentWebhookLog> PaymentWebhookLogRepository { get; }
+        IRepository<OutboxMessage> OutboxMessageRepository { get; }
 
     }
 }

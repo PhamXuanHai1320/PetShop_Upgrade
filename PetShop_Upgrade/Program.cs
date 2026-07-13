@@ -18,6 +18,7 @@ using Minio.DataModel.Args;
 using PetShop_Upgrade.Orchestrators.Interfaces;
 using PetShop_Upgrade.Orchestrators;
 using System.Text.Json.Serialization;
+using PetShop_Upgrade.Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,9 @@ builder.Services.AddScoped<IMinioService, MinioService>();
 builder.Services.AddScoped<IVNPayService, VNPayService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddHostedService<InventoryLockExpirationWorker>();
+builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection(RabbitMqOptions.SectionName));
+builder.Services.AddHostedService<OutboxPublisherWorker>();
+builder.Services.AddHostedService<PaymentEventConsumerWorker>();
 
 // Add Repository to the container.
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();

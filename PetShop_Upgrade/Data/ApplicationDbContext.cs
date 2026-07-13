@@ -26,6 +26,7 @@ namespace PetShop_Upgrade.Data
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<PaymentWebhookLog> PaymentWebhookLogs { get; set; }
+        public DbSet<OutboxMessage> OutboxMessages { get; set; }
         public DbSet<PetHealthRecord> PetHealthRecords { get; set; }
         public DbSet<PetVariant> PetVariant { get; set; }
         public DbSet<PetVaccination> PetVaccination { get; set; }
@@ -162,6 +163,9 @@ namespace PetShop_Upgrade.Data
                 .WithOne(o => o.Payment)
                 .HasForeignKey<Payment>(p => p.OrderId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<OutboxMessage>()
+                .HasIndex(x => new { x.PublishedAt, x.NextRetryAt });
 
             // =====================
             // PRODUCT

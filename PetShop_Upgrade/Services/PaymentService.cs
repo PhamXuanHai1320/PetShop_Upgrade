@@ -3,6 +3,7 @@ using PetShop_Upgrade.Repositories.Interfaces;
 using PetShop_Upgrade.Services.Interfaces;
 using PetShop_Upgrade.DTOS.VNPay;
 using static PetShop_Upgrade.Models.Enum;
+using System.Text.Json;
 
 namespace PetShop_Upgrade.Services
 {
@@ -161,6 +162,8 @@ namespace PetShop_Upgrade.Services
                     order.status = OrderStatus.CONFIRMED;
                     foreach (var inventoryLock in order.InventoryLocks.Where(x => x.Status == InventoryLockStatus.LOCKED))
                         inventoryLock.Status = InventoryLockStatus.CONFIRMED;
+
+                    AddOutboxMessage("payment.succeeded", order, callback);
                 }
                 else // Nếu callback thất bại, cập nhật trạng thái Order và Payment, đồng thời hoàn trả số lượng sản phẩm đã khóa
                 {
@@ -186,6 +189,8 @@ namespace PetShop_Upgrade.Services
 
                     foreach (var usage in order.DiscountUsages.ToList())
                         _unitOfWork.DiscountUsageRepository.Delete(usage);
+
+                    AddOutboxMessage("payment.failed", order, callback);
                 }
 
                 _unitOfWork.OrderRepository.Update(order);
@@ -198,6 +203,31 @@ namespace PetShop_Upgrade.Services
                 await transaction.RollbackAsync();
                 throw;
             }
+        }
+
+        private void AddOutboxMessage(string eventType, Order order, VNPayCallbackResultDTO callback)
+        {
+            _unitOfWork.OutboxMessageRepository.Add(new OutboxMessage
+            {
+                EventType = eventType,
+                Payload = JsonSerializer.Serialize(new
+                {
+                    EventId = Guid.NewGuid(),
+                    EventType = eventType,
+                    Data = new
+                    {
+                        OrderId = order.Id,
+                        PaymentId = order.Payment.Id,
+                        order.MemberId,
+                        Amount = order.Payment.TotalPrice,
+                        PaymentMethod = order.Payment.PaymentMethod.ToString(),
+                        order.Payment.TransactionId,
+                        callback.ResponseCode,
+                        callback.TransactionStatus,
+                        OccurredAt = DateTime.UtcNow
+                    }
+                })
+            });
         }
     }
 }
