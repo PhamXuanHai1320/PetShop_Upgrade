@@ -8,6 +8,8 @@ using static PetShop_Upgrade.Models.Enum;
 using System.Text.Json;
 using PetShop_Upgrade.DTOS.Order.Client;
 using PetShop_Upgrade.DTOS.Order.Admin;
+using AutoMapper;
+using PetShop_Upgrade.DTOS;
 
 namespace PetShop_Upgrade.Services
 {
@@ -15,6 +17,7 @@ namespace PetShop_Upgrade.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAddressDataService _addressDataService;
+        private readonly IMapper _mapper;
         private readonly ILogger<OrderService> _logger;
         private static readonly Dictionary<OrderStatus, OrderStatus[]> ValidTransitions = new()
         {
@@ -25,11 +28,12 @@ namespace PetShop_Upgrade.Services
             [OrderStatus.CANCELLED] = Array.Empty<OrderStatus>(),
         };
 
-        public OrderService(IUnitOfWork unitOfWork, ILogger<OrderService> logger, IAddressDataService addressDataService)
+        public OrderService(IUnitOfWork unitOfWork, ILogger<OrderService> logger, IAddressDataService addressDataService, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _addressDataService = addressDataService;
+            _mapper = mapper;
         }
         public async Task<CreateOrderResultDTO> CreateOrderFromCartAsync(int memberId, CreateOrderFromCartRequestDTO createOrderRequestDTO)
         {
@@ -642,6 +646,120 @@ namespace PetShop_Upgrade.Services
                     throw;
                 }
             }
+        }
+
+        public async Task<PagedResultDTO<ListOrderDTO>> GetOrderByStatus(
+            OrderStatus orderStatus, 
+            int memberId, 
+            int page, 
+            int pageSize)
+        {
+            if(orderStatus == OrderStatus.CANCELLED)
+            {
+                throw new BadRequestException("Không thể lọc đơn hàng theo trạng thái CANCELLED");
+            }
+            var pagedDataIOrder = await _unitOfWork.OrderRepository.GetOrdersByOrderStatusAsync(orderStatus, memberId, page, pageSize);
+            var orders = pagedDataIOrder.Items;
+            if (!orders.Any())
+                return new PagedResultDTO<ListOrderDTO>
+                {
+                    Items = Enumerable.Empty<ListOrderDTO>(),
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalItems = pagedDataIOrder.TotalItems,
+                    TotalPages = (int)Math.Ceiling((double)pagedDataIOrder.TotalItems / pageSize)
+                };
+
+            var listOrderDTO = new List<ListOrderDTO>(orders.Select(o => new ListOrderDTO
+            {
+                OrderId = o.Id,
+                OrderCode = $"PS{o.Id:D6}",
+                CreatedAt = o.CreatedAt,
+                TotalPrice = o.TotalPrice,
+                FinalPrice = o.FinalPrice,
+                OrderStatus = o.status,
+                PaymentStatus = o.Payment.PaymentStatus,
+                TotalItems = o.OrderDetails.Sum(od => od.Quantity)
+            }));
+            return new PagedResultDTO<ListOrderDTO>
+            {
+                Items = listOrderDTO,
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = pagedDataIOrder.TotalItems,
+                TotalPages = (int)Math.Ceiling((double)pagedDataIOrder.TotalItems / pageSize)
+            };
+        }
+
+        public async Task<OrderDetailDTO> GetOrderDetail(int orderId, int memberId)
+        {
+            var order = await _unitOfWork.OrderRepository.GetOrderDetail(orderId, memberId);
+            if (order == null)
+                throw new NotFoundException($"Không tìm thấy đơn hàng (OrderId = {orderId})");
+            return _mapper.Map<OrderDetailDTO>(order);
+        }
+
+        public async Task<PagedResultDTO<AdminListOrderDTO>> AdminGetOrdersByFilterAsync(
+            AdminOrderFilterDTO orderFilterDTO, 
+            int page, 
+            int pageSize)
+        {
+            var pagedDataIOrder = await _unitOfWork.OrderRepository.AdminGetOrdersByFilterAsync(orderFilterDTO, page, pageSize);
+            var orders = pagedDataIOrder.Items;
+            if (!orders.Any())
+                return new PagedResultDTO<AdminListOrderDTO>
+                {
+                    Items = Enumerable.Empty<AdminListOrderDTO>(),
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalItems = pagedDataIOrder.TotalItems,
+                    TotalPages = (int)Math.Ceiling((double)pagedDataIOrder.TotalItems / pageSize)
+                };
+            var adminListOrderDTO = new List<AdminListOrderDTO>(orders.Select(o => new AdminListOrderDTO
+            {
+                OrderId = o.Id,
+                OrderCode = $"PS{o.Id:D6}",
+                CreatedAt = o.CreatedAt,
+                FinalPrice = o.FinalPrice,
+                OrderStatus = o.status,
+                PaymentStatus = o.Payment.PaymentStatus,
+                TotalItems = o.OrderDetails.Sum(od => od.Quantity),
+                MemberName = $"{o.Member.FirstName} {o.Member.LastName}",
+                PhoneNumber = o.Member.PhoneNumber
+            }));
+            return new PagedResultDTO<AdminListOrderDTO>
+            {
+                Items = adminListOrderDTO,
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = pagedDataIOrder.TotalItems,
+                TotalPages = (int)Math.Ceiling((double)pagedDataIOrder.TotalItems / pageSize)
+            };
+        }
+
+        public async Task<AdminOrderDetailDTO> AdminGetOrderDetail(int orderId)
+        {
+            var order = await _unitOfWork.OrderRepository.AdminGetOrderDetail(orderId);
+            if (order == null)
+                throw new NotFoundException($"Không tìm thấy đơn hàng (OrderId = {orderId})");
+
+            var adminOrderDetailDTO = _mapper.Map<AdminOrderDetailDTO>(order);
+
+            if (order.status == OrderStatus.CANCELLED)
+            {
+                adminOrderDetailDTO.CancelReason = order.CancelReason;
+                adminOrderDetailDTO.CancelledAt = order.CancelledAt;
+                if(order.CancelledByAdminId.HasValue)
+                {
+                    adminOrderDetailDTO.CancelledByAdminId = order.CancelledByAdminId.Value;
+                    var admin = await _unitOfWork.MemberRepository.GetById(order.CancelledByAdminId.Value);
+                    if (admin != null)
+                    {
+                        adminOrderDetailDTO.CancelledByAdminName = $"{admin.FirstName} {admin.LastName}";
+                    }
+                }
+            }
+            return adminOrderDetailDTO;
         }
     }
 }

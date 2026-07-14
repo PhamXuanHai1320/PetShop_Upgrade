@@ -2,6 +2,8 @@
 using PetShop_Upgrade.DTOS.Cart;
 using PetShop_Upgrade.DTOS.Colors;
 using PetShop_Upgrade.DTOS.Discounts;
+using PetShop_Upgrade.DTOS.Order.Admin;
+using PetShop_Upgrade.DTOS.Order.Client;
 using PetShop_Upgrade.DTOS.Products.Admin;
 using PetShop_Upgrade.DTOS.Products.Client;
 using PetShop_Upgrade.Models;
@@ -84,6 +86,37 @@ namespace PetShop_Upgrade.AutoMapper
                         src.Product.ProductImages.FirstOrDefault(img => img.IsMain == IsMain.MAIN) != null
                             ? $"{_baseUrl}/{_bucketName}/{src.Product.ProductImages.First(img => img.IsMain == IsMain.MAIN).ImageUrl}"
                             : null));
+            // --- Cấu hình cho Module Order ---
+            CreateMap<Order, OrderDetailDTO>()
+                .ForMember(dest => dest.OrderCode,
+                otp => otp.MapFrom(src => $"PS{src.Id:D6}"));
+            CreateMap<OrderDetail, OrderItemDTO>()
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.ProductName))
+                .ForMember(dest => dest.ProductImageUrl,
+                    opt => opt.MapFrom(src =>
+                        src.Product.ProductImages
+                            .Where(img => img.IsMain == IsMain.MAIN)
+                            .Select(img => $"{_baseUrl}/{_bucketName}/{img.ImageUrl}")
+                            .FirstOrDefault()))
+                .ForMember(dest => dest.ProductColorName,
+                    opt => opt.MapFrom(src =>
+                        src.Product.ProductColors
+                            .Where(pc => pc.Id == src.ProductColorId)
+                            .Select(pc => pc.Color.ColorName)
+                            .FirstOrDefault()));
+            CreateMap<Order, AdminOrderDetailDTO>()
+                .ForMember(dest => dest.OrderCode,
+                    otp => otp.MapFrom(src => $"PS{src.Id:D6}"))
+                .ForMember(dest => dest.MemberOrderName,
+                    opt => opt.MapFrom(src => $"{src.Member.FirstName} {src.Member.LastName}"))
+                .ForMember(dest => dest.MemberOrderEmail,
+                    opt => opt.MapFrom(src => src.Member.Email))
+                .ForMember(dest => dest.MemberOrderPhoneNumber,
+                    opt => opt.MapFrom(src => src.Member.PhoneNumber))
+                .ForMember(dest => dest.PaymentMethod,
+                    opt => opt.MapFrom(src => src.Payment.PaymentMethod))
+                .ForMember(dest => dest.PaymentStatus,
+                    opt => opt.MapFrom(src => src.Payment.PaymentStatus));
         }
     }
 }

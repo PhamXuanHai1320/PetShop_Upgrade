@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PetShop_Upgrade.DTOS.Order;
+using PetShop_Upgrade.DTOS.Order.Admin;
 using PetShop_Upgrade.DTOS.Order.Client;
 using PetShop_Upgrade.Orchestrators.Interfaces;
 using PetShop_Upgrade.Services.Interfaces;
+using static PetShop_Upgrade.Models.Enum;
 
 namespace PetShop_Upgrade.Controllers
 {
@@ -95,6 +96,41 @@ namespace PetShop_Upgrade.Controllers
         {
             await _orderService.CancelOrderByMemberAsync(id, memberId, cancelOrderDTO);
             return NoContent();
+        }
+
+        [Authorize(Roles = "Customer")]
+        [HttpGet]
+        public async Task<IActionResult> GetOrdersByStatus(
+            [FromQuery] OrderStatus orderStatus, 
+            int page = 1, 
+            int pageSize = 10)
+        {
+            var orders = await _orderService.GetOrderByStatus(orderStatus, memberId, page, pageSize);
+            return Ok(orders);
+        }
+        [Authorize(Roles = "Customer")]
+        [HttpGet("{orderId}")]
+        public async Task<IActionResult> GetOrderDetail([FromRoute] int orderId)
+        {
+            var order = await _orderService.GetOrderDetail(orderId, memberId);
+            return Ok(order);
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpGet("admin")]
+        public async Task<IActionResult> AdminGetOrdersByFilter(
+            [FromQuery] AdminOrderFilterDTO adminOrderFilterDTO, 
+            int page = 1, 
+            int pageSize = 10)
+        {
+            var orders = await _orderService.AdminGetOrdersByFilterAsync(adminOrderFilterDTO, page, pageSize);
+            return Ok(orders);
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpGet("admin/{orderId}")]
+        public async Task<IActionResult> AdminGetOrderDetail([FromRoute] int orderId)
+        {
+            var order = await _orderService.AdminGetOrderDetail(orderId);
+            return Ok(order);
         }
     }
 }

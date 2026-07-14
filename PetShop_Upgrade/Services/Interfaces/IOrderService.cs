@@ -1,5 +1,7 @@
-﻿using PetShop_Upgrade.DTOS.Order.Admin;
+﻿using PetShop_Upgrade.DTOS;
+using PetShop_Upgrade.DTOS.Order.Admin;
 using PetShop_Upgrade.DTOS.Order.Client;
+using static PetShop_Upgrade.Models.Enum;
 
 namespace PetShop_Upgrade.Services.Interfaces
 {
@@ -14,5 +16,11 @@ namespace PetShop_Upgrade.Services.Interfaces
         Task ConfirmOrderPaymentAsync(int orderId);
         Task CancelOrderBySystemAsync(int orderId, string CancelReason);
         Task ExpirePendingVNPayOrdersAsync(CancellationToken cancellationToken = default);
+        Task<PagedResultDTO<ListOrderDTO>> GetOrderByStatus(
+            OrderStatus orderStatus, int memberId,int page, int pageSize);
+        Task<OrderDetailDTO> GetOrderDetail(int orderId, int memberId);
+        Task<PagedResultDTO<AdminListOrderDTO>> AdminGetOrdersByFilterAsync(
+            AdminOrderFilterDTO orderFilterDTO, int page, int pageSize);
+        Task<AdminOrderDetailDTO> AdminGetOrderDetail(int orderId);
     }
 }
