@@ -168,7 +168,7 @@ namespace PetShop_Upgrade.Services
                 else // Nếu callback thất bại, cập nhật trạng thái Order và Payment, đồng thời hoàn trả số lượng sản phẩm đã khóa
                 {
                     order.Payment.PaymentStatus = PaymentStatus.FAILED;
-                    order.status = OrderStatus.CANCELLED;
+                    order.status = OrderStatus.EXPIRED;
                     order.CancelReason = $"Thanh toán thất bại (VNPay: {callback.ResponseCode}/{callback.TransactionStatus})";
                     order.CancelledAt = DateTime.UtcNow;
 

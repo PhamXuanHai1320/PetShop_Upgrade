@@ -13,7 +13,9 @@
             PENDING = 0,
             CONFIRMED = 1,
             COMPLETED = 2,
-            CANCELLED = 3
+            CANCELLED = 3,
+            REJECTED = 4,
+            NO_SHOW = 5
         }
         public enum OrderStatus
         {
@@ -21,7 +23,8 @@
             CONFIRMED = 1,
             SHIPPED = 2,
             DELIVERED = 3,
-            CANCELLED = 4
+            CANCELLED = 4,
+            EXPIRED = 5
         }
         public enum IsActive
         {

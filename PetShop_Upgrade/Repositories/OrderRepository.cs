@@ -141,7 +141,8 @@ namespace PetShop_Upgrade.Repositories
                 .Include(o => o.Payment)
                 .FirstOrDefaultAsync(o =>
                     o.Id == orderId &&
-                    o.MemberId == memberId);
+                    o.MemberId == memberId &&
+                    o.status != OrderStatus.EXPIRED);
         }
     }
 }

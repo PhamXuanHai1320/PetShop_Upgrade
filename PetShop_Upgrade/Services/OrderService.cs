@@ -26,6 +26,7 @@ namespace PetShop_Upgrade.Services
             [OrderStatus.SHIPPED] = new[] { OrderStatus.DELIVERED },
             [OrderStatus.DELIVERED] = Array.Empty<OrderStatus>(),
             [OrderStatus.CANCELLED] = Array.Empty<OrderStatus>(),
+            [OrderStatus.EXPIRED] = Array.Empty<OrderStatus>(),
         };
 
         public OrderService(IUnitOfWork unitOfWork, ILogger<OrderService> logger, IAddressDataService addressDataService, IMapper mapper)
@@ -108,6 +109,18 @@ namespace PetShop_Upgrade.Services
                     // Check ProductColorId có thuộc ProductId không
                     if (productColor.ProductId != item.ProductId)
                         throw new BadRequestException($"ProductColorId = {item.ProductColorId} không thuộc ProductId = {item.ProductId}");
+
+                    if (product.Type == ProductType.Pet)
+                    {
+                        var completedAppointments = await _unitOfWork.PetViewingAppointmentRepository.FindAsync(
+                            pva => pva.ProductId == product.Id &&
+                                   pva.ProductColorId == item.ProductColorId &&
+                                   pva.Appointment.MemberId == memberId &&
+                                   pva.Appointment.Status == AppointmentStatus.COMPLETED);
+                        if (!completedAppointments.Any())
+                            throw new BadRequestException(
+                                $"Bạn cần hoàn thành lịch hẹn xem thú cưng {product.ProductName} trước khi mua");
+                    }
 
                     // Kiểm tra tồn kho sau khi lock
                     if (productColor.Quantity < item.Quantity)
@@ -228,6 +241,7 @@ namespace PetShop_Upgrade.Services
                 {
                     var completedAppointments = await _unitOfWork.PetViewingAppointmentRepository.FindAsync(
                         pva => pva.ProductId == product.Id &&
+                               pva.ProductColorId == createOrderRequestDTO.ProductColorId &&
                                pva.Appointment.MemberId == memberId &&
                                pva.Appointment.Status == AppointmentStatus.COMPLETED);
 
@@ -442,14 +456,14 @@ namespace PetShop_Upgrade.Services
                 if (order == null)
                     throw new NotFoundException($"Không tìm thấy đơn hàng (OrderId = {orderId})");
 
-                if (order.status == OrderStatus.CANCELLED)
+                if (order.status is OrderStatus.CANCELLED or OrderStatus.EXPIRED)
                 {
                     if (!requestingMemberId.HasValue && !cancelledByAdminId.HasValue)
                     {
                         await transaction.CommitAsync();
                         return;
                     }
-                    throw new BadRequestException("Đơn hàng đã được hủy trước đó");
+                    throw new BadRequestException("Đơn hàng đã kết thúc trước đó");
                 }
 
                 if (requestingMemberId.HasValue && order.MemberId != requestingMemberId.Value)
@@ -471,7 +485,7 @@ namespace PetShop_Upgrade.Services
                 else if(cancelledByAdminId.HasValue)
                 {
                     // Admin: không cho hủy khi đã DELIVERED hoặc CANCELLED
-                    if (order.status is OrderStatus.DELIVERED or OrderStatus.CANCELLED or OrderStatus.SHIPPED)
+                    if (order.status is OrderStatus.DELIVERED or OrderStatus.CANCELLED or OrderStatus.EXPIRED or OrderStatus.SHIPPED)
                         throw new BadRequestException($"Không thể hủy đơn hàng đang ở trạng thái {order.status}");
                 }
 
@@ -519,8 +533,8 @@ namespace PetShop_Upgrade.Services
         }
         public async Task UpdateOrderStatusAsync(int orderId, int adminId, UpdateOrderStatusRequestDTO updateOrderDTO)
         {
-            if (updateOrderDTO.NewStatus == OrderStatus.CANCELLED)
-                throw new BadRequestException("Vui lòng dùng chức năng hủy đơn để chuyển sang trạng thái này");
+            if (updateOrderDTO.NewStatus is OrderStatus.CANCELLED or OrderStatus.EXPIRED)
+                throw new BadRequestException("Không thể cập nhật thủ công sang trạng thái này");
 
             var order = await _unitOfWork.OrderRepository.GetOrderWithDetailsByIdAsync(orderId);
             if (order == null)
@@ -611,7 +625,7 @@ namespace PetShop_Upgrade.Services
                     order.Payment.PaymentStatus = PaymentStatus.FAILED;
                     order.Payment.CancelledAt = DateTime.UtcNow;
                     order.Payment.CancellationReason = "Hết thời gian thanh toán VNPay";
-                    order.status = OrderStatus.CANCELLED;
+                    order.status = OrderStatus.EXPIRED;
                     order.CancelReason = "Hết thời gian thanh toán VNPay";
                     order.CancelledAt = DateTime.UtcNow;
                     foreach (var usage in order.DiscountUsages.ToList())
@@ -654,9 +668,9 @@ namespace PetShop_Upgrade.Services
             int page, 
             int pageSize)
         {
-            if(orderStatus == OrderStatus.CANCELLED)
+            if(orderStatus == OrderStatus.EXPIRED)
             {
-                throw new BadRequestException("Không thể lọc đơn hàng theo trạng thái CANCELLED");
+                throw new BadRequestException("Không thể xem đơn hàng ở trạng thái EXPIRED");
             }
             var pagedDataIOrder = await _unitOfWork.OrderRepository.GetOrdersByOrderStatusAsync(orderStatus, memberId, page, pageSize);
             var orders = pagedDataIOrder.Items;
@@ -745,7 +759,7 @@ namespace PetShop_Upgrade.Services
 
             var adminOrderDetailDTO = _mapper.Map<AdminOrderDetailDTO>(order);
 
-            if (order.status == OrderStatus.CANCELLED)
+            if (order.status is OrderStatus.CANCELLED or OrderStatus.EXPIRED)
             {
                 adminOrderDetailDTO.CancelReason = order.CancelReason;
                 adminOrderDetailDTO.CancelledAt = order.CancelledAt;
