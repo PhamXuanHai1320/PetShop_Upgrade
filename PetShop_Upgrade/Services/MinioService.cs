@@ -34,8 +34,25 @@ namespace PetShop_Upgrade.Services
                 }
 
                 // Tạo tên file duy nhất để tránh trùng
-                var fileName = $"{Guid.NewGuid()}_{file.FileName}";
+                var extension = Path.GetExtension(file.FileName);
+                var fileName = $"{Guid.NewGuid()}{extension}";
 
+                // Xác định Content-Type dựa trên phần mở rộng của file nếu không có Content-Type
+                var contentType = file.ContentType;
+
+                if (string.IsNullOrWhiteSpace(contentType) ||
+                    contentType == "application/octet-stream")
+                {
+                    contentType = extension.ToLowerInvariant() switch
+                    {
+                        ".jpg" or ".jpeg" => "image/jpeg",
+                        ".png" => "image/png",
+                        ".gif" => "image/gif",
+                        ".webp" => "image/webp",
+                        ".svg" => "image/svg+xml",
+                        _ => "application/octet-stream"
+                    };
+                }
                 using var stream = file.OpenReadStream();
                 var args = new PutObjectArgs()
                     .WithBucket(_bucketName)
