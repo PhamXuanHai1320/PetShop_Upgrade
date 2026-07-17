@@ -59,6 +59,12 @@ namespace PetShop_Upgrade.Middlewares
                     _logger.LogWarning(ex, "Forbidden: {Message}", ex.Message);
                     break;
 
+                case ConflictException:
+                    statusCode = StatusCodes.Status409Conflict;
+                    message = ex.Message;
+                    _logger.LogWarning(ex, "Conflict: {Message}", ex.Message);
+                    break;
+
                 case KeyNotFoundException:
                     statusCode = StatusCodes.Status404NotFound;
                     message = ex.Message;

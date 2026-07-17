@@ -19,6 +19,7 @@ using PetShop_Upgrade.Orchestrators.Interfaces;
 using PetShop_Upgrade.Orchestrators;
 using System.Text.Json.Serialization;
 using PetShop_Upgrade.Messaging;
+using PetShop_Upgrade.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,8 @@ builder.Services.AddScoped<IAddressDataService, AddressDataService>();
 builder.Services.AddScoped<IMinioService, MinioService>();
 builder.Services.AddScoped<IVNPayService, VNPayService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.Configure<AppointmentOptions>(builder.Configuration.GetSection(AppointmentOptions.SectionName));
 builder.Services.AddHostedService<InventoryLockExpirationWorker>();
 builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection(RabbitMqOptions.SectionName));
 builder.Services.AddHostedService<OutboxPublisherWorker>();

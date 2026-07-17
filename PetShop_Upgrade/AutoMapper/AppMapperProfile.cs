@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using PetShop_Upgrade.DTOS.Appointments;
+using PetShop_Upgrade.DTOS.Appointments.Admin;
+using PetShop_Upgrade.DTOS.Appointments.Client;
 using PetShop_Upgrade.DTOS.Cart;
 using PetShop_Upgrade.DTOS.Colors;
 using PetShop_Upgrade.DTOS.Discounts;
@@ -117,6 +120,47 @@ namespace PetShop_Upgrade.AutoMapper
                     opt => opt.MapFrom(src => src.Payment.PaymentMethod))
                 .ForMember(dest => dest.PaymentStatus,
                     opt => opt.MapFrom(src => src.Payment.PaymentStatus));
+            // --- Cấu hình cho Module Appointment ---
+            CreateMap<Appointment, AdminAppointmentDetailDTO>()
+                .ForMember(dest => dest.MemberName,
+                    opt => opt.MapFrom(src => $"{src.Member.FirstName} {src.Member.LastName}".Trim()))
+                .ForMember(dest => dest.Email,
+                    opt => opt.MapFrom(src => src.Member.Email))
+                .ForMember(dest => dest.PhoneNumber,
+                    opt => opt.MapFrom(src => src.Member.PhoneNumber))
+                .ForMember(dest => dest.ProductId,
+                    opt => opt.MapFrom(src => src.PetViewingAppointment.ProductId))
+                .ForMember(dest => dest.ProductName,
+                    opt => opt.MapFrom(src => src.PetViewingAppointment.Product.ProductName))
+                .ForMember(dest => dest.ProductColorName,
+                    opt => opt.MapFrom(src =>
+                        src.PetViewingAppointment.Product.ProductColors
+                            .Where(pc => pc.Id == src.PetViewingAppointment.ProductColorId)
+                            .Select(pc => pc.Color.ColorName)
+                            .FirstOrDefault()));
+            CreateMap<Appointment, AppointmentDetailDTO>()
+                .ForMember(dest => dest.ProductId,
+                    opt => opt.MapFrom(src => src.PetViewingAppointment.ProductId))
+                .ForMember(dest => dest.ProductName,
+                    opt => opt.MapFrom(src => src.PetViewingAppointment.Product.ProductName))
+                .ForMember(dest => dest.ProductColorName,
+                    opt => opt.MapFrom(src =>
+                        src.PetViewingAppointment.Product.ProductColors
+                            .Where(pc => pc.Id == src.PetViewingAppointment.ProductColorId)
+                            .Select(pc => pc.Color.ColorName)
+                            .FirstOrDefault()));
+            CreateMap<Appointment, AdminAppointmentItemDTO>()
+                .ForMember(dest => dest.ProductId,
+                    opt => opt.MapFrom(src => src.PetViewingAppointment.ProductId))
+                .ForMember(dest => dest.ProductName,
+                    opt => opt.MapFrom(src => src.PetViewingAppointment.Product.ProductName))
+                .ForMember(dest => dest.MemberName,
+                    opt => opt.MapFrom(src => $"{src.Member.FirstName} {src.Member.LastName}".Trim()));
+            CreateMap<Appointment, AppointmentItemDTO>()
+                .ForMember(dest => dest.ProductId,
+                    opt => opt.MapFrom(src => src.PetViewingAppointment.ProductId))
+                .ForMember(dest => dest.ProductName,
+                    opt => opt.MapFrom(src => src.PetViewingAppointment.Product.ProductName));
         }
     }
 }

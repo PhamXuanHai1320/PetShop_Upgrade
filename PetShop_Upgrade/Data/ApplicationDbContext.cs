@@ -150,7 +150,7 @@ namespace PetShop_Upgrade.Data
                 .HasKey(pva => pva.AppointmentId);
             modelBuilder.Entity<PetViewingAppointment>()
                 .HasOne(pva => pva.Appointment)
-                .WithOne()
+                .WithOne(a => a.PetViewingAppointment)
                 .HasForeignKey<PetViewingAppointment>(pva => pva.AppointmentId)
                 .OnDelete(DeleteBehavior.Cascade);
 
