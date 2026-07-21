@@ -24,6 +24,8 @@ using PetShop_Upgrade.Options;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<MongoDbContext>();
+builder.Services.AddHttpClient();
+builder.Services.AddMemoryCache();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options => {
@@ -59,6 +61,7 @@ builder.Services.AddHostedService<InventoryLockExpirationWorker>();
 builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection(RabbitMqOptions.SectionName));
 builder.Services.AddHostedService<OutboxPublisherWorker>();
 builder.Services.AddHostedService<PaymentEventConsumerWorker>();
+builder.Services.Configure<GoogleAuthOptions>(builder.Configuration.GetSection(GoogleAuthOptions.SectionName));
 
 // Add Repository to the container.
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();

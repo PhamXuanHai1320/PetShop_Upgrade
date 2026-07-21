@@ -1,13 +1,19 @@
 ﻿using Azure.Core;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using PetShop_Upgrade.DTOS.Auth;
 using PetShop_Upgrade.DTOS.Members.Admin;
 using PetShop_Upgrade.Exceptions;
+using PetShop_Upgrade.Messaging;
 using PetShop_Upgrade.Models;
+using PetShop_Upgrade.Options;
 using PetShop_Upgrade.Repositories.Interfaces;
 using PetShop_Upgrade.Services.Interfaces;
 using PetShop_Upgrade.Utils;
 using PetShop_Upgrade.Utils.Interfaces;
+using System.Net.Http.Json;
+using System.Text.Json.Serialization;
 
 namespace PetShop_Upgrade.Services
 {
@@ -19,10 +25,13 @@ namespace PetShop_Upgrade.Services
         private readonly SignInManager<Member> _signInManager;
         private readonly ITokenHelper _tokenHelper;
         private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly GoogleAuthOptions _option;
         private readonly int _expiresAt;
         public AuthService(IUnitOfWork unitOfWork, IJwtService jwtService, 
             UserManager<Member> userManager, SignInManager<Member> signInManager, 
-            ITokenHelper tokenHelper, IConfiguration configuration)
+            ITokenHelper tokenHelper, IConfiguration configuration,
+            IHttpClientFactory httpClientFactory, IOptions<GoogleAuthOptions> option)
         {
             _unitOfWork = unitOfWork;
             _jwtService = jwtService;
@@ -30,6 +39,8 @@ namespace PetShop_Upgrade.Services
             _signInManager = signInManager;
             _tokenHelper = tokenHelper;
             _configuration = configuration;
+            _httpClientFactory = httpClientFactory;
+            _option = option.Value;
             _expiresAt = int.Parse(_configuration["Jwt:RefreshTokenExpireDays"]);
         }
         public async Task<AuthResponseDTO> LoginAsync(LoginDTO loginDTO)
@@ -252,6 +263,160 @@ namespace PetShop_Upgrade.Services
                 PhoneNumber = member.PhoneNumber,
                 Role = (await _userManager.GetRolesAsync(member)).FirstOrDefault()
             };
+        }
+        public async Task<AuthResponseDTO> GoogleCallbackAsync(string authorizationCode)
+        {
+
+            using var request = new HttpRequestMessage(HttpMethod.Post, "https://oauth2.googleapis.com/token")
+            {
+                Content = new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    ["code"] = authorizationCode,
+                    ["client_id"] = _option.ClientId,
+                    ["client_secret"] = _option.ClientSecret,
+                    ["redirect_uri"] = _option.RedirectUri,
+                    ["grant_type"] = "authorization_code"
+                })
+            };
+
+            var httpClient = _httpClientFactory.CreateClient();
+            using var response = await httpClient.SendAsync(request);
+            var tokenResponse = await response.Content.ReadFromJsonAsync<GoogleTokenResponse>();
+
+            if (!response.IsSuccessStatusCode || string.IsNullOrWhiteSpace(tokenResponse?.IdToken))
+            {
+                throw new UnauthorizedException(
+                    tokenResponse?.ErrorDescription ?? "Không thể đổi authorization code lấy Google token.");
+            }
+
+            return await CompleteGoogleLoginAsync(tokenResponse.IdToken, _option.ClientId);
+        }
+        // Hàm xử lý đăng nhập bằng Google
+        private async Task<AuthResponseDTO> CompleteGoogleLoginAsync(string idToken, string clientId)
+        {
+
+            GoogleJsonWebSignature.Payload payload;
+            try
+            {
+                payload = await GoogleJsonWebSignature.ValidateAsync(
+                    idToken,
+                    new GoogleJsonWebSignature.ValidationSettings
+                    {
+                        Audience = new[] { clientId }
+                    });
+            }
+            catch (InvalidJwtException)
+            {
+                throw new UnauthorizedException("Google ID token không hợp lệ hoặc đã hết hạn.");
+            }
+
+            if (string.IsNullOrWhiteSpace(payload.Email) || !payload.EmailVerified)
+                throw new UnauthorizedException("Tài khoản Google chưa xác minh email.");
+
+            const string loginProvider = "Google";
+            var member = await _userManager.FindByLoginAsync(loginProvider, payload.Subject);
+
+            if (member == null)
+            {
+                member = await _userManager.FindByEmailAsync(payload.Email);
+
+                if (member == null)
+                {
+                    await using var transaction = await _unitOfWork.BeginTransactionAsync();
+                    try
+                    {
+                        member = new Member
+                        {
+                            UserName = await GenerateUniqueUserNameAsync(payload.Email),
+                            Email = payload.Email,
+                            EmailConfirmed = true,
+                            FirstName = payload.GivenName ?? string.Empty,
+                            LastName = payload.FamilyName ?? string.Empty,
+                            CreateAt = DateTime.UtcNow
+                        };
+
+                        EnsureIdentitySucceeded(await _userManager.CreateAsync(member));
+                        EnsureIdentitySucceeded(await _userManager.AddToRoleAsync(member, "Customer"));
+                        EnsureIdentitySucceeded(await _userManager.AddLoginAsync(
+                            member,
+                            new UserLoginInfo(loginProvider, payload.Subject, "Google")));
+
+                        _unitOfWork.CartRepository.Add(new Cart
+                        {
+                            MemberId = member.Id,
+                            CreatedAt = DateTime.UtcNow
+                        });
+                        await _unitOfWork.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                    }
+                    catch
+                    {
+                        await transaction.RollbackAsync();
+                        throw;
+                    }
+                }
+                else
+                {
+                    EnsureIdentitySucceeded(await _userManager.AddLoginAsync(
+                        member,
+                        new UserLoginInfo(loginProvider, payload.Subject, "Google")));
+
+                    if (!member.EmailConfirmed)
+                    {
+                        member.EmailConfirmed = true;
+                        EnsureIdentitySucceeded(await _userManager.UpdateAsync(member));
+                    }
+                }
+            }
+
+            if (await _userManager.IsLockedOutAsync(member))
+                throw new UnauthorizedException("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.");
+
+            var memberDTO = await MapToMemberDto(member);
+            var accessToken = _jwtService.GenerateTokenAsync(memberDTO);
+            var refreshToken = _tokenHelper.GenerateRefreshTokenString();
+
+            _unitOfWork.RefreshTokenRepository.Add(new RefreshToken
+            {
+                HashToken = _tokenHelper.HashRefreshToken(refreshToken),
+                MemberId = member.Id,
+                ExpiresAt = DateTime.UtcNow.AddDays(_expiresAt),
+                IsRevoked = false
+            });
+            await _unitOfWork.SaveChangesAsync();
+
+            return new AuthResponseDTO
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            };
+        }
+        // Hàm tạo username duy nhất dựa trên email
+        private async Task<string> GenerateUniqueUserNameAsync(string email)
+        {
+            var baseUserName = email.Split('@')[0];
+            var userName = baseUserName;
+            var suffix = 1;
+
+            while (await _userManager.FindByNameAsync(userName) != null)
+                userName = $"{baseUserName}{suffix++}";
+
+            return userName;
+        }
+        // Hàm kiểm tra kết quả IdentityResult và ném lỗi nếu không thành công
+        private static void EnsureIdentitySucceeded(IdentityResult result)
+        {
+            if (!result.Succeeded)
+                throw new BadRequestException(string.Join(", ", result.Errors.Select(e => e.Description)));
+        }
+        // Class để ánh xạ phản hồi từ Google Token API
+        private sealed class GoogleTokenResponse
+        {
+            [JsonPropertyName("id_token")]
+            public string? IdToken { get; init; }
+
+            [JsonPropertyName("error_description")]
+            public string? ErrorDescription { get; init; }
         }
     }
 }

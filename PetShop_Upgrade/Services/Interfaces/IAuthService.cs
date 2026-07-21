@@ -6,6 +6,7 @@ namespace PetShop_Upgrade.Services.Interfaces
     {
         Task<AuthResponseDTO> RegisterAsync(RegisterDTO registerDTO, string role);
         Task<AuthResponseDTO> LoginAsync(LoginDTO loginDTO);
+        Task<AuthResponseDTO> GoogleCallbackAsync(string authorizationCode);
         Task<TokenResponseDTO> RefreshTokenAsync(TokenResponseDTO request);
         Task RevokeTokenAsync(string refreshToken, int memberId);
         Task RevokeAllAsync(string memberId);
